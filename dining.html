@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
+  <title>The Aurelia Grand · Dining & Experiences</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- GLOBAL RESET & THEME (identical) ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --maroon: #4A0E1A;
+      --dark-maroon: #2A0710;
+      --gold: #C9A227;
+      --soft-gold: #E4C77A;
+      --warm-white: #FAF7F2;
+      --glass-bg: rgba(74, 14, 26, 0.55);
+      --shadow-elegant: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+      background: var(--warm-white);
+      color: #1e1a1a;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    /* ----- HAMBURGER (top-right) ----- */
+    .hamburger-btn {
+      position: fixed;
+      top: 1.8rem;
+      right: 2rem;
+      z-index: 1200;
+      background: rgba(74, 14, 26, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(201, 162, 39, 0.4);
+      border-radius: 60px;
+      padding: 0.75rem 1.1rem;
+      font-size: 1.8rem;
+      color: var(--warm-white);
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .hamburger-btn:hover {
+      background: rgba(201, 162, 39, 0.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.04);
+    }
+    .hamburger-btn i {
+      transition: transform 0.3s ease;
+    }
+    .hamburger-btn.open i {
+      transform: rotate(90deg);
+    }
+
+    /* overlay */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1050;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0s 0.5s;
+    }
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease, visibility 0s 0s;
+    }
+
+    /* right sidebar */
+    .sidebar-right {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 420px;
+      max-width: 92vw;
+      height: 100vh;
+      z-index: 1100;
+      background: rgba(42, 7, 16, 0.92);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-left: 1px solid rgba(201, 162, 39, 0.25);
+      box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
+      transform: translateX(110%);
+      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.8rem 1.5rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold) rgba(201, 162, 39, 0.1);
+    }
+    .sidebar-right::-webkit-scrollbar { width: 5px; }
+    .sidebar-right::-webkit-scrollbar-track { background: rgba(201, 162, 39, 0.05); border-radius: 10px; }
+    .sidebar-right::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+    .sidebar-right.open { transform: translateX(0); }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.15);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.8rem;
+      flex-shrink: 0;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-brand i {
+      font-size: 2rem;
+      color: var(--gold);
+      filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.3));
+    }
+    .sidebar-brand h2 {
+      font-size: 1.4rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--warm-white);
+    }
+    .sidebar-brand h2 span {
+      font-weight: 600;
+      color: var(--soft-gold);
+    }
+    .sidebar-close {
+      background: transparent;
+      border: none;
+      color: var(--warm-white);
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 40px;
+      transition: 0.2s;
+    }
+    .sidebar-close:hover {
+      color: var(--gold);
+      transform: rotate(90deg);
+    }
+
+    .nav-list {
+      list-style: none;
+      flex: 1 1 auto;
+      padding: 0.5rem 0 1rem;
+    }
+    .nav-list li {
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      margin-bottom: 0.2rem;
+    }
+    .sidebar-right.open .nav-list li {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .sidebar-right.open .nav-list li:nth-child(1) { transition-delay: 0.05s; }
+    .sidebar-right.open .nav-list li:nth-child(2) { transition-delay: 0.10s; }
+    .sidebar-right.open .nav-list li:nth-child(3) { transition-delay: 0.15s; }
+    .sidebar-right.open .nav-list li:nth-child(4) { transition-delay: 0.20s; }
+    .sidebar-right.open .nav-list li:nth-child(5) { transition-delay: 0.25s; }
+    .sidebar-right.open .nav-list li:nth-child(6) { transition-delay: 0.30s; }
+    .sidebar-right.open .nav-list li:nth-child(7) { transition-delay: 0.35s; }
+    .sidebar-right.open .nav-list li:nth-child(8) { transition-delay: 0.40s; }
+
+    .nav-list li a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0.8rem 1.2rem;
+      border-radius: 14px;
+      color: rgba(255, 240, 230, 0.7);
+      font-weight: 400;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+    }
+    .nav-list li a i {
+      width: 28px;
+      font-size: 1.3rem;
+      color: rgba(228, 199, 122, 0.6);
+      transition: 0.2s;
+    }
+    .nav-list li a:hover {
+      background: rgba(201, 162, 39, 0.08);
+      color: var(--warm-white);
+      border-left-color: var(--gold);
+    }
+    .nav-list li a:hover i {
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(201, 162, 39, 0.3);
+    }
+    .nav-list li.active a {
+      background: rgba(201, 162, 39, 0.08);
+      border-left-color: var(--gold);
+      color: var(--warm-white);
+    }
+    .nav-list li.active a i {
+      color: var(--gold);
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid rgba(201, 162, 39, 0.12);
+      padding-top: 1.2rem;
+      margin-top: 0.5rem;
+      flex-shrink: 0;
+    }
+    .sidebar-footer p {
+      color: rgba(255, 240, 230, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.6rem;
+    }
+    .sidebar-footer .social-icons {
+      display: flex;
+      gap: 1.2rem;
+    }
+    .sidebar-footer .social-icons a {
+      color: rgba(255, 240, 230, 0.4);
+      font-size: 1.4rem;
+      transition: 0.2s;
+    }
+    .sidebar-footer .social-icons a:hover {
+      color: var(--gold);
+      transform: scale(1.1);
+      text-shadow: 0 0 16px rgba(201, 162, 39, 0.3);
+    }
+
+    /* ----- MAIN CONTENT ----- */
+    .main-content {
+      width: 100%;
+    }
+
+    /* ----- HERO (dining) ----- */
+    .hero-dining {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1600&q=80') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-dining::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.55);
+      background: linear-gradient(145deg, rgba(42,7,16,0.65) 0%, rgba(74,14,26,0.3) 100%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 850px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--warm-white);
+      animation: heroFade 1.8s ease;
+    }
+    @keyframes heroFade {
+      0% { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(201, 162, 39, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 0.3rem 1.8rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      color: var(--soft-gold);
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      margin-bottom: 1.5rem;
+    }
+    .hero-dining h1 {
+      font-size: 4.2rem;
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .hero-dining h1 strong { font-weight: 600; color: var(--soft-gold); }
+    .hero-dining p {
+      font-size: 1.25rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+      font-weight: 300;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .btn-gold {
+      background: transparent;
+      border: 1.5px solid var(--gold);
+      color: var(--warm-white);
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-decoration: none;
+      transition: 0.3s;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 0 15px rgba(201, 162, 39, 0.1);
+    }
+    .btn-gold:hover {
+      background: var(--gold);
+      color: var(--dark-maroon);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
+      transform: scale(1.03);
+    }
+    .btn-gold-filled {
+      background: var(--gold);
+      border: 1.5px solid var(--gold);
+      color: var(--dark-maroon);
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .btn-gold-filled:hover {
+      background: transparent;
+      color: var(--warm-white);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.03);
+    }
+
+    /* ----- sections ----- */
+    .section {
+      padding: 5rem 6%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: 2.6rem;
+      font-weight: 300;
+      color: var(--dark-maroon);
+      margin-bottom: 0.5rem;
+    }
+    .section-title span { color: var(--gold); }
+    .gold-line {
+      width: 80px;
+      height: 2px;
+      background: var(--gold);
+      margin: 0.5rem 0 2rem;
+    }
+
+    /* intro */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .intro-image {
+      background: url('https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&q=80') center/cover;
+      min-height: 300px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .intro-text p {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: #2f2a2a;
+    }
+
+    /* dining destinations grid */
+    .dining-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .dining-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+      transition: 0.4s;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+      display: flex;
+      flex-direction: column;
+    }
+    .dining-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 40px rgba(74, 14, 26, 0.08);
+    }
+    .dining-img {
+      position: relative;
+      overflow: hidden;
+      height: 220px;
+    }
+    .dining-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .dining-card:hover .dining-img img {
+      transform: scale(1.05);
+    }
+    .dining-info {
+      padding: 1.5rem;
+      flex: 1;
+    }
+    .dining-info .category {
+      color: var(--gold);
+      font-size: 0.8rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .dining-info h3 {
+      color: var(--maroon);
+      font-weight: 400;
+      font-size: 1.5rem;
+      margin: 0.3rem 0;
+    }
+    .dining-info .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.5rem;
+      color: #5a4a4a;
+      font-size: 0.9rem;
+      margin: 0.4rem 0;
+    }
+    .dining-info .meta i { color: var(--gold); width: 18px; }
+    .dining-info p {
+      color: #3d3a3a;
+      line-height: 1.5;
+      margin: 0.6rem 0;
+    }
+    .dining-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .dining-actions a {
+      text-decoration: none;
+      padding: 0.4rem 1.4rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      border: 1px solid var(--gold);
+      transition: 0.2s;
+    }
+    .btn-menu {
+      background: transparent;
+      color: var(--maroon);
+    }
+    .btn-menu:hover {
+      background: var(--gold);
+      color: white;
+    }
+    .btn-reserve {
+      background: var(--gold);
+      color: var(--dark-maroon);
+      font-weight: 600;
+    }
+    .btn-reserve:hover {
+      background: var(--soft-gold);
+    }
+
+    /* signature menu filter */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.8rem 1.2rem;
+      margin: 1.5rem 0 2rem;
+      padding: 0.6rem 1.5rem;
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(4px);
+      border-radius: 60px;
+      border: 1px solid rgba(201, 162, 39, 0.15);
+    }
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .filter-btn {
+      background: transparent;
+      border: 1px solid rgba(201, 162, 39, 0.2);
+      padding: 0.3rem 1.2rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      color: var(--dark-maroon);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .filter-btn:hover,
+    .filter-btn.active {
+      background: var(--gold);
+      color: var(--dark-maroon);
+      border-color: var(--gold);
+    }
+
+    /* menu items grid */
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem;
+    }
+    .menu-item {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+      transition: 0.3s;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.02);
+    }
+    .menu-item:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 32px rgba(74,14,26,0.06);
+    }
+    .menu-item img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+    }
+    .menu-item .body {
+      padding: 1.2rem 1.2rem 1.5rem;
+    }
+    .menu-item .body h4 {
+      color: var(--maroon);
+      font-weight: 500;
+      font-size: 1.1rem;
+    }
+    .menu-item .body .desc {
+      font-size: 0.9rem;
+      color: #555;
+      margin: 0.3rem 0;
+      line-height: 1.4;
+    }
+    .menu-item .body .price {
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+    .menu-item .body .add-btn {
+      margin-top: 0.6rem;
+      background: var(--gold);
+      border: none;
+      border-radius: 40px;
+      padding: 0.4rem 1.4rem;
+      color: var(--dark-maroon);
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.85rem;
+    }
+    .menu-item .body .add-btn:hover {
+      background: var(--soft-gold);
+    }
+
+    /* selection counter + toast */
+    .selection-counter {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 900;
+      background: var(--maroon);
+      color: var(--warm-white);
+      padding: 0.6rem 1.6rem;
+      border-radius: 60px;
+      border: 1px solid var(--gold);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.95rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: 0.3s;
+      pointer-events: none;
+    }
+    .selection-counter.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .selection-counter i {
+      color: var(--gold);
+    }
+
+    .toast {
+      position: fixed;
+      top: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--dark-maroon);
+      color: var(--warm-white);
+      padding: 0.8rem 2rem;
+      border-radius: 60px;
+      border: 1px solid var(--gold);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+      z-index: 1300;
+      opacity: 0;
+      transition: 0.4s ease;
+      font-size: 0.95rem;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* drinks */
+    .drinks-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.8rem;
+      margin-top: 2rem;
+    }
+    .drink-card {
+      background: white;
+      border-radius: 20px;
+      padding: 1.2rem;
+      text-align: center;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+      transition: 0.3s;
+    }
+    .drink-card:hover {
+      transform: translateY(-4px);
+    }
+    .drink-card i {
+      font-size: 2.4rem;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .drink-card h4 {
+      color: var(--maroon);
+    }
+    .drink-card .price {
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* romantic section */
+    .romantic-section {
+      background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80') center/cover;
+      min-height: 400px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2rem 0;
+      position: relative;
+    }
+    .romantic-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.4);
+      border-radius: 30px;
+    }
+    .romantic-content {
+      position: relative;
+      z-index: 2;
+      color: var(--warm-white);
+      text-align: center;
+      padding: 2rem;
+    }
+    .romantic-content h2 {
+      font-size: 3rem;
+      font-weight: 300;
+    }
+    .romantic-content h2 span { color: var(--soft-gold); }
+
+    /* private dining icons */
+    .private-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .private-card {
+      background: white;
+      padding: 1.8rem 1rem;
+      border-radius: 24px;
+      text-align: center;
+      border: 1px solid rgba(201, 162, 39, 0.06);
+    }
+    .private-card i {
+      font-size: 2.6rem;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+
+    /* chef */
+    .chef-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .chef-image {
+      background: url('https://images.unsplash.com/photo-1583394293214-28ded15ee548?w=800&q=80') center/cover;
+      min-height: 320px;
+      border-radius: 24px;
+    }
+
+    /* hours */
+    .hours-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .hours-card {
+      background: white;
+      padding: 1.8rem;
+      border-radius: 24px;
+      border: 1px solid rgba(201, 162, 39, 0.06);
+    }
+    .hours-card h4 {
+      color: var(--maroon);
+      font-weight: 400;
+    }
+    .hours-card .time {
+      color: var(--gold);
+      font-weight: 500;
+    }
+
+    /* gallery lightbox */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .gallery-grid img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+    }
+    .gallery-grid img:hover {
+      transform: scale(1.02);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1400;
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.3s;
+    }
+    .lightbox.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    }
+    .lightbox .close-lb {
+      position: absolute;
+      top: 2rem;
+      right: 2.5rem;
+      font-size: 2.4rem;
+      color: var(--warm-white);
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .lightbox .close-lb:hover {
+      color: var(--gold);
+      transform: rotate(90deg);
+    }
+
+    /* testimonials */
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+    }
+    .testimonial-card {
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(4px);
+      padding: 2rem 1.5rem;
+      border-radius: 24px;
+      border: 1px solid rgba(201, 162, 39, 0.1);
+      text-align: center;
+    }
+    .testimonial-card .stars {
+      color: var(--gold);
+      margin: 0.6rem 0;
+    }
+    .testimonial-card .name {
+      font-weight: 600;
+      color: var(--maroon);
+    }
+
+    /* CTA */
+    .cta-big {
+      background: var(--maroon);
+      padding: 4rem 2rem;
+      border-radius: 40px;
+      text-align: center;
+      color: var(--warm-white);
+      margin: 3rem 0;
+    }
+    .cta-big h2 {
+      font-size: 3rem;
+      font-weight: 300;
+    }
+    .cta-big h2 span { color: var(--soft-gold); }
+
+    /* footer (identical) */
+    .footer {
+      background: var(--dark-maroon);
+      color: rgba(255, 240, 230, 0.7);
+      padding: 4rem 6% 2rem;
+      margin-top: 4rem;
+      border-top: 1px solid rgba(201, 162, 39, 0.2);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+    .footer h4 {
+      color: var(--soft-gold);
+      font-weight: 400;
+      letter-spacing: 1px;
+      margin-bottom: 1.2rem;
+    }
+    .footer a {
+      color: rgba(255, 240, 230, 0.6);
+      text-decoration: none;
+      display: block;
+      margin: 0.4rem 0;
+      transition: 0.2s;
+    }
+    .footer a:hover { color: var(--gold); }
+    .footer-social i {
+      font-size: 1.6rem;
+      margin-right: 0.8rem;
+      transition: 0.2s;
+    }
+    .footer-social i:hover {
+      color: var(--gold);
+      transform: scale(1.1);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(201, 162, 39, 0.1);
+      padding-top: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* responsive */
+    @media (max-width: 1024px) {
+      .hero-dining h1 { font-size: 3.2rem; }
+      .dining-grid { grid-template-columns: 1fr 1fr; }
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+      .drinks-grid { grid-template-columns: 1fr 1fr; }
+      .private-grid { grid-template-columns: 1fr 1fr; }
+      .hours-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .testimonial-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar-right { width: 88vw; }
+      .hero-dining h1 { font-size: 2.6rem; }
+      .intro-grid { grid-template-columns: 1fr; }
+      .dining-grid { grid-template-columns: 1fr; }
+      .menu-grid { grid-template-columns: 1fr; }
+      .drinks-grid { grid-template-columns: 1fr; }
+      .private-grid { grid-template-columns: 1fr; }
+      .hours-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .testimonial-grid { grid-template-columns: 1fr; }
+      .chef-grid { grid-template-columns: 1fr; }
+      .filter-bar { border-radius: 30px; flex-direction: column; align-items: stretch; }
+      .hamburger-btn { top: 1.2rem; right: 1.2rem; padding: 0.6rem 0.9rem; font-size: 1.5rem; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 480px) {
+      .hero-dining h1 { font-size: 2rem; }
+      .section-title { font-size: 2rem; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+    .text-center { text-align: center; }
+    .mt-2 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <!-- HAMBURGER -->
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="menu-overlay" id="menuOverlay"></div>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right" id="rightSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <i class="fas fa-crown"></i>
+        <h2>THE <span>AURELIA</span> GRAND</h2>
+      </div>
+      <button class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <ul class="nav-list">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="about.html"><i class="fas fa-hotel"></i> About</a></li>
+      <li><a href="rooms.html"><i class="fas fa-bed"></i> Rooms & Suites</a></li>
+      <li class="active"><a href="dining.html"><i class="fas fa-utensils"></i> Dining</a></li>
+      <li><a href="amenities.html"><i class="fas fa-spa"></i> Amenities</a></li>
+      <li><a href="gallery.html"><i class="fas fa-images"></i> Gallery</a></li>
+      <li><a href="booking.html"><i class="fas fa-calendar-check"></i> Book Your Stay</a></li>
+      <li><a href="booking.html#contact"><i class="fas fa-phone-alt"></i> Contact</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <p><i class="fas fa-quote-left" style="color:var(--gold);"></i> Where Luxury Becomes a Memory.</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-tiktok"></i></a>
+        <a href="#"><i class="fab fa-pinterest-p"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <!-- HERO -->
+    <section class="hero-dining">
+      <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-star" style="color:var(--gold);"></i> THE AURELIA GRAND</div>
+        <h1><strong>"Taste the</strong> Extraordinary."</h1>
+        <p>From intimate breakfasts to unforgettable evenings, every dining experience at The Aurelia Grand is crafted to delight the senses.</p>
+        <div class="hero-buttons">
+          <a href="#dining-destinations" class="btn-gold-filled"><i class="fas fa-utensils"></i> EXPLORE DINING</a>
+          <a href="booking.html#restaurant" class="btn-gold"><i class="fas fa-calendar-plus"></i> RESERVE A TABLE</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="section">
+      <div class="intro-grid">
+        <div class="intro-image"></div>
+        <div class="intro-text">
+          <h2 class="section-title">"An Experience for <span>Every Occasion.</span>"</h2>
+          <div class="gold-line"></div>
+          <p>At The Aurelia Grand, dining is more than a meal. It is an experience shaped by exceptional flavors, intimate surroundings, thoughtful service, and unforgettable moments.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- DINING DESTINATIONS -->
+    <section class="section" id="dining-destinations">
+      <h2 class="section-title">"Dining <span>Destinations.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="dining-grid">
+        <!-- 1 -->
+        <div class="dining-card">
+          <div class="dining-img"><img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80" alt="The Aurelia Restaurant"></div>
+          <div class="dining-info">
+            <div class="category">Fine Dining</div>
+            <h3>The Aurelia Restaurant</h3>
+            <div class="meta"><span><i class="fas fa-utensils"></i> Contemporary International</span><span><i class="far fa-clock"></i> 7:00 AM – 11:00 PM</span></div>
+            <p>An elegant dining destination where refined cuisine, seasonal ingredients, and impeccable service come together.</p>
+            <div class="dining-actions">
+              <a href="#signature-menu" class="btn-menu">VIEW MENU</a>
+              <a href="booking.html#restaurant" class="btn-reserve">RESERVE A TABLE</a>
+            </div>
+          </div>
+        </div>
+        <!-- 2 -->
+        <div class="dining-card">
+          <div class="dining-img"><img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80" alt="Aurelia Café"></div>
+          <div class="dining-info">
+            <div class="category">Café & Patisserie</div>
+            <h3>Aurelia Café</h3>
+            <div class="meta"><span><i class="fas fa-coffee"></i> Coffee, Pastries & Light Bites</span><span><i class="far fa-clock"></i> 8:00 AM – 10:00 PM</span></div>
+            <p>A sophisticated café serving handcrafted coffee, delicate pastries, afternoon treats, and relaxed all-day moments.</p>
+            <div class="dining-actions">
+              <a href="#signature-menu" class="btn-menu">VIEW MENU</a>
+              <a href="booking.html#restaurant" class="btn-reserve">RESERVE A TABLE</a>
+            </div>
+          </div>
+        </div>
+        <!-- 3 -->
+        <div class="dining-card">
+          <div class="dining-img"><img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=600&q=80" alt="The Rooftop"></div>
+          <div class="dining-info">
+            <div class="category">Rooftop Dining</div>
+            <h3>The Rooftop</h3>
+            <div class="meta"><span><i class="fas fa-utensils"></i> Modern European</span><span><i class="far fa-clock"></i> 5:00 PM – 1:00 AM</span></div>
+            <p>Enjoy unforgettable evenings above the city with panoramic views, signature drinks, and beautifully curated dishes.</p>
+            <div class="dining-actions">
+              <a href="#signature-menu" class="btn-menu">VIEW MENU</a>
+              <a href="booking.html#restaurant" class="btn-reserve">RESERVE A TABLE</a>
+            </div>
+          </div>
+        </div>
+        <!-- 4 -->
+        <div class="dining-card">
+          <div class="dining-img"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80" alt="Private Dining"></div>
+          <div class="dining-info">
+            <div class="category">Exclusive Experience</div>
+            <h3>Private Dining</h3>
+            <div class="meta"><span><i class="fas fa-crown"></i> Chef's Selection</span><span><i class="far fa-clock"></i> By Reservation</span></div>
+            <p>An intimate private dining experience designed for celebrations, romantic evenings, and unforgettable occasions.</p>
+            <div class="dining-actions">
+              <a href="#private-dining" class="btn-menu">DISCOVER EXPERIENCE</a>
+              <a href="booking.html#restaurant" class="btn-reserve">RESERVE</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SIGNATURE MENU -->
+    <section class="section" id="signature-menu">
+      <h2 class="section-title">"Signature <span>Flavors.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="filter-bar">
+        <div class="filter-group" id="menuFilterGroup">
+          <button class="filter-btn active" data-filter="all">ALL</button>
+          <button class="filter-btn" data-filter="starter">STARTERS</button>
+          <button class="filter-btn" data-filter="main">MAIN COURSE</button>
+          <button class="filter-btn" data-filter="dessert">DESSERTS</button>
+          <button class="filter-btn" data-filter="beverage">BEVERAGES</button>
+        </div>
+      </div>
+      <div class="menu-grid" id="menuGrid">
+        <!-- items -->
+        <div class="menu-item" data-category="main">
+          <img src="https://images.unsplash.com/photo-1633933357796-3b7c3f2c9a4f?w=400&q=80" alt="Truffle Butter Risotto">
+          <div class="body">
+            <h4>Truffle Butter Risotto</h4>
+            <div class="desc">Creamy arborio rice, parmesan, wild mushrooms and truffle butter.</div>
+            <div class="price">Rs. 4,800</div>
+            <button class="add-btn" data-name="Truffle Butter Risotto">ADD TO SELECTION</button>
+          </div>
+        </div>
+        <div class="menu-item" data-category="main">
+          <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80" alt="Royal Herb-Crusted Tenderloin">
+          <div class="body">
+            <h4>Royal Herb-Crusted Tenderloin</h4>
+            <div class="desc">Premium beef tenderloin with rosemary jus and seasonal vegetables.</div>
+            <div class="price">Rs. 7,500</div>
+            <button class="add-btn" data-name="Royal Herb-Crusted Tenderloin">ADD TO SELECTION</button>
+          </div>
+        </div>
+        <div class="menu-item" data-category="main">
+          <img src="https://images.unsplash.com/photo-1559847844-5315695dada5?w=400&q=80" alt="Saffron Seafood Linguine">
+          <div class="body">
+            <h4>Saffron Seafood Linguine</h4>
+            <div class="desc">Fresh seafood, saffron cream and handmade linguine.</div>
+            <div class="price">Rs. 5,900</div>
+            <button class="add-btn" data-name="Saffron Seafood Linguine">ADD TO SELECTION</button>
+          </div>
+        </div>
+        <div class="menu-item" data-category="starter">
+          <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400&q=80" alt="Aurelia Garden Salad">
+          <div class="body">
+            <h4>Aurelia Garden Salad</h4>
+            <div class="desc">Seasonal greens, burrata, roasted vegetables and house dressing.</div>
+            <div class="price">Rs. 3,200</div>
+            <button class="add-btn" data-name="Aurelia Garden Salad">ADD TO SELECTION</button>
+          </div>
+        </div>
+        <div class="menu-item" data-category="dessert">
+          <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=80" alt="Dark Chocolate Royale">
+          <div class="body">
+            <h4>Dark Chocolate Royale</h4>
+            <div class="desc">Rich dark chocolate dessert with gold-inspired presentation.</div>
+            <div class="price">Rs. 2,400</div>
+            <button class="add-btn" data-name="Dark Chocolate Royale">ADD TO SELECTION</button>
+          </div>
+        </div>
+        <div class="menu-item" data-category="dessert">
+          <img src="https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&q=80" alt="Aurelia Signature Cheesecake">
+          <div class="body">
+            <h4>Aurelia Signature Cheesecake</h4>
+            <div class="desc">Silky cheesecake with seasonal berries and vanilla cream.</div>
+            <div class="price">Rs. 2,200</div>
+            <button class="add-btn" data-name="Aurelia Signature Cheesecake">ADD TO SELECTION</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DRINKS -->
+    <section class="section">
+      <h2 class="section-title">"Signature <span>Drinks.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="drinks-grid">
+        <div class="drink-card"><i class="fas fa-mug-hot"></i><h4>Signature Coffee</h4><p>Rich blend, gold finish</p><div class="price">Rs. 1,200</div></div>
+        <div class="drink-card"><i class="fas fa-glass-cheers"></i><h4>Royal Mocktail</h4><p>Sparkling with herbs</p><div class="price">Rs. 1,800</div></div>
+        <div class="drink-card"><i class="fas fa-wine-bottle"></i><h4>Aurelia Sparkling</h4><p>Premium bubbly</p><div class="price">Rs. 3,500</div></div>
+        <div class="drink-card"><i class="fas fa-leaf"></i><h4>Classic Tea Selection</h4><p>Loose leaf, gold service</p><div class="price">Rs. 1,100</div></div>
+        <div class="drink-card"><i class="fas fa-seedling"></i><h4>Botanical Infusion</h4><p>Fresh herbs & flowers</p><div class="price">Rs. 1,500</div></div>
+        <div class="drink-card"><i class="fas fa-cocktail"></i><h4>Aurelia Sunset</h4><p>Signature cocktail</p><div class="price">Rs. 2,400</div></div>
+      </div>
+    </section>
+
+    <!-- ROMANTIC DINING -->
+    <section class="section">
+      <div class="romantic-section">
+        <div class="romantic-content">
+          <h2>"Make It an Evening <span>to Remember.</span>"</h2>
+          <p style="font-size:1.2rem; max-width:600px; margin:1rem auto;">Celebrate life's beautiful moments with an intimate dining experience designed around you.</p>
+          <a href="booking.html#restaurant" class="btn-gold-filled" style="display:inline-block;">PLAN A PRIVATE DINING EXPERIENCE</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRIVATE DINING -->
+    <section class="section" id="private-dining">
+      <h2 class="section-title">"Private <span>Occasions.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="private-grid">
+        <div class="private-card"><i class="fas fa-heart"></i><h4>Romantic Dinner</h4></div>
+        <div class="private-card"><i class="fas fa-ring"></i><h4>Anniversary</h4></div>
+        <div class="private-card"><i class="fas fa-birthday-cake"></i><h4>Birthday</h4></div>
+        <div class="private-card"><i class="fas fa-handshake"></i><h4>Business Dinner</h4></div>
+        <div class="private-card"><i class="fas fa-users"></i><h4>Family Celebration</h4></div>
+        <div class="private-card"><i class="fas fa-calendar-check"></i><h4>Private Events</h4></div>
+      </div>
+    </section>
+
+    <!-- CHEF -->
+    <section class="section">
+      <h2 class="section-title">"Crafted by <span>Passion.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="chef-grid">
+        <div class="chef-image"></div>
+        <div>
+          <h3 style="color:var(--maroon);font-weight:400;font-size:2rem;">Executive Chef <span style="color:var(--gold);">Alessandro Moretti</span></h3>
+          <p style="font-size:1.05rem;line-height:1.7;margin:1rem 0;">With a passion for refined flavors and thoughtful presentation, our culinary team creates dishes that celebrate exceptional ingredients and timeless techniques.</p>
+          <a href="about.html#chef" class="btn-gold" style="border-color:var(--gold);color:var(--maroon);display:inline-block;">MEET OUR CULINARY TEAM</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOURS -->
+    <section class="section">
+      <h2 class="section-title">"Dining <span>Hours.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="hours-grid">
+        <div class="hours-card"><h4>The Aurelia Restaurant</h4><div class="time">Breakfast 7:00 – 11:00</div><div class="time">Lunch 12:30 – 15:30</div><div class="time">Dinner 18:30 – 23:00</div></div>
+        <div class="hours-card"><h4>Aurelia Café</h4><div class="time">8:00 AM – 10:00 PM</div></div>
+        <div class="hours-card"><h4>The Rooftop</h4><div class="time">5:00 PM – 1:00 AM</div></div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="section">
+      <h2 class="section-title">"Visual <span>Indulgence.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="gallery-grid" id="diningGallery">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400&q=80" alt="Restaurant interior">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" alt="Fine dining table">
+        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=400&q=80" alt="Signature dish">
+        <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=400&q=80" alt="Rooftop view">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=400&q=80" alt="Coffee">
+        <img src="https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=400&q=80" alt="Dessert">
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section">
+      <h2 class="section-title">"Moments Shared by <span>Our Guests.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"An unforgettable evening. Every dish was beautifully presented and the atmosphere was absolutely magical."</p><div class="name">— Sophia & James</div></div>
+        <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"The rooftop dining experience was breathtaking. Exceptional service and exquisite flavors."</p><div class="name">— The Richardsons</div></div>
+        <div class="testimonial-card"><div class="stars"><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i></div><p>"Private dining made our anniversary truly special. Every detail was perfect."</p><div class="name">— Elena & Marco</div></div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="section">
+      <div class="cta-big">
+        <h2>"Come Hungry. <span>Leave Inspired.</span>"</h2>
+        <p style="font-size:1.2rem; margin:1rem 0;">Discover the flavors, atmosphere, and hospitality that define The Aurelia Grand.</p>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+          <a href="#signature-menu" class="btn-gold" style="border-color:var(--warm-white); color:var(--warm-white);">VIEW OUR MENU</a>
+          <a href="booking.html#restaurant" class="btn-gold-filled" style="background:var(--warm-white); color:var(--dark-maroon); border-color:var(--warm-white);">RESERVE YOUR TABLE</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-grid">
+        <div><h4>THE AURELIA GRAND</h4><p style="font-size:0.9rem;">Luxury boutique hotel where elegance meets memory.</p></div>
+        <div><h4>Explore</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="rooms.html">Rooms</a><a href="dining.html">Dining</a><a href="amenities.html">Amenities</a><a href="gallery.html">Gallery</a><a href="booking.html">Booking</a></div>
+        <div><h4>Contact</h4><a href="#"><i class="fas fa-map-pin"></i> 888 Luxury Ave, NYC</a><a href="#"><i class="fas fa-phone-alt"></i> +1 (800) 555‑AURELIA</a><a href="#"><i class="fas fa-envelope"></i> stay@aureliagrand.com</a></div>
+        <div><h4>Follow</h4><div class="footer-social"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-tiktok"></i></a><a href="#"><i class="fab fa-pinterest-p"></i></a></div></div>
+      </div>
+      <div class="footer-bottom">© 2026 The Aurelia Grand. All rights reserved. <i class="fas fa-crown" style="color:var(--gold);"></i></div>
+    </footer>
+  </main>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"><i class="fas fa-check-circle" style="color:var(--gold);"></i> Added to your dining selection.</div>
+
+  <!-- SELECTION COUNTER -->
+  <div class="selection-counter" id="selectionCounter"><i class="fas fa-utensils"></i> <span id="countDisplay">0</span> items selected</div>
+
+  <!-- LIGHTBOX -->
+  <div class="lightbox" id="lightbox">
+    <span class="close-lb" id="closeLb"><i class="fas fa-times"></i></span>
+    <img id="lightboxImg" src="" alt="Dining gallery">
+  </div>
+
+  <script>
+    (function() {
+      // --- SIDEBAR (same as home) ---
+      const hamburger = document.getElementById('hamburgerBtn');
+      const sidebar = document.getElementById('rightSidebar');
+      const overlay = document.getElementById('menuOverlay');
+      const closeBtn = document.getElementById('sidebarCloseBtn');
+      const icon = hamburger.querySelector('i');
+
+      function openMenu() {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+        hamburger.classList.add('open');
+        icon.className = 'fas fa-times';
+        document.body.style.overflow = 'hidden';
+      }
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('open');
+        icon.className = 'fas fa-bars';
+        document.body.style.overflow = '';
+      }
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sidebar.classList.contains('open')) closeMenu();
+        else openMenu();
+      });
+      closeBtn.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
+      });
+
+      // --- MENU FILTER ---
+      const menuFilterBtns = document.querySelectorAll('#menuFilterGroup .filter-btn');
+      const menuItems = document.querySelectorAll('.menu-item');
+
+      menuFilterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+          menuFilterBtns.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          const filter = this.dataset.filter;
+          menuItems.forEach(item => {
+            if (filter === 'all' || item.dataset.category === filter) {
+              item.style.display = 'block';
+            } else {
+              item.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // --- ADD TO SELECTION + COUNTER + TOAST ---
+      const addBtns = document.querySelectorAll('.add-btn');
+      const counterEl = document.getElementById('countDisplay');
+      const selectionCounter = document.getElementById('selectionCounter');
+      const toast = document.getElementById('toast');
+      let count = 0;
+
+      function updateCounter() {
+        counterEl.textContent = count;
+        if (count > 0) {
+          selectionCounter.classList.add('visible');
+        } else {
+          selectionCounter.classList.remove('visible');
+        }
+      }
+
+      function showToast() {
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
+      }
+
+      addBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          count++;
+          updateCounter();
+          showToast();
+        });
+      });
+
+      // reset counter if clicked on counter (optional)
+      selectionCounter.addEventListener('click', function() {
+        count = 0;
+        updateCounter();
+        showToast();
+        toast.textContent = 'Selection cleared.';
+        setTimeout(() => { toast.textContent = 'Added to your dining selection.'; }, 2000);
+      });
+
+      // --- LIGHTBOX ---
+      const galleryImgs = document.querySelectorAll('#diningGallery img');
+      const lightbox = document.getElementById('lightbox');
+      const lightboxImg = document.getElementById('lightboxImg');
+      const closeLb = document.getElementById('closeLb');
+
+      galleryImgs.forEach(img => {
+        img.addEventListener('click', function() {
+          lightbox.classList.add('open');
+          lightboxImg.src = this.src;
+        });
+      });
+      closeLb.addEventListener('click', () => lightbox.classList.remove('open'));
+      lightbox.addEventListener('click', (e) => {
+        if (e.target === lightbox) lightbox.classList.remove('open');
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('open')) lightbox.classList.remove('open');
+      });
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
+  <title>The Aurelia Grand · About</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- GLOBAL RESET & THEME (identical) ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --maroon: #4A0E1A;
+      --dark-maroon: #2A0710;
+      --gold: #C9A227;
+      --soft-gold: #E4C77A;
+      --warm-white: #FAF7F2;
+      --glass-bg: rgba(74, 14, 26, 0.55);
+      --shadow-elegant: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+      background: var(--warm-white);
+      color: #1e1a1a;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    /* ----- HAMBURGER (top-right) ----- */
+    .hamburger-btn {
+      position: fixed;
+      top: 1.8rem;
+      right: 2rem;
+      z-index: 1200;
+      background: rgba(74, 14, 26, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(201, 162, 39, 0.4);
+      border-radius: 60px;
+      padding: 0.75rem 1.1rem;
+      font-size: 1.8rem;
+      color: var(--warm-white);
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .hamburger-btn:hover {
+      background: rgba(201, 162, 39, 0.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.04);
+    }
+    .hamburger-btn i {
+      transition: transform 0.3s ease;
+    }
+    .hamburger-btn.open i {
+      transform: rotate(90deg);
+    }
+
+    /* overlay */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1050;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0s 0.5s;
+    }
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease, visibility 0s 0s;
+    }
+
+    /* right sidebar */
+    .sidebar-right {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 420px;
+      max-width: 92vw;
+      height: 100vh;
+      z-index: 1100;
+      background: rgba(42, 7, 16, 0.92);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-left: 1px solid rgba(201, 162, 39, 0.25);
+      box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
+      transform: translateX(110%);
+      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.8rem 1.5rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold) rgba(201, 162, 39, 0.1);
+    }
+    .sidebar-right::-webkit-scrollbar { width: 5px; }
+    .sidebar-right::-webkit-scrollbar-track { background: rgba(201, 162, 39, 0.05); border-radius: 10px; }
+    .sidebar-right::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 10px; }
+    .sidebar-right.open { transform: translateX(0); }
+
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.15);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.8rem;
+      flex-shrink: 0;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-brand i {
+      font-size: 2rem;
+      color: var(--gold);
+      filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.3));
+    }
+    .sidebar-brand h2 {
+      font-size: 1.4rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--warm-white);
+    }
+    .sidebar-brand h2 span {
+      font-weight: 600;
+      color: var(--soft-gold);
+    }
+    .sidebar-close {
+      background: transparent;
+      border: none;
+      color: var(--warm-white);
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 40px;
+      transition: 0.2s;
+    }
+    .sidebar-close:hover {
+      color: var(--gold);
+      transform: rotate(90deg);
+    }
+
+    .nav-list {
+      list-style: none;
+      flex: 1 1 auto;
+      padding: 0.5rem 0 1rem;
+    }
+    .nav-list li {
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      margin-bottom: 0.2rem;
+    }
+    .sidebar-right.open .nav-list li {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .sidebar-right.open .nav-list li:nth-child(1) { transition-delay: 0.05s; }
+    .sidebar-right.open .nav-list li:nth-child(2) { transition-delay: 0.10s; }
+    .sidebar-right.open .nav-list li:nth-child(3) { transition-delay: 0.15s; }
+    .sidebar-right.open .nav-list li:nth-child(4) { transition-delay: 0.20s; }
+    .sidebar-right.open .nav-list li:nth-child(5) { transition-delay: 0.25s; }
+    .sidebar-right.open .nav-list li:nth-child(6) { transition-delay: 0.30s; }
+    .sidebar-right.open .nav-list li:nth-child(7) { transition-delay: 0.35s; }
+    .sidebar-right.open .nav-list li:nth-child(8) { transition-delay: 0.40s; }
+
+    .nav-list li a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0.8rem 1.2rem;
+      border-radius: 14px;
+      color: rgba(255, 240, 230, 0.7);
+      font-weight: 400;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+    }
+    .nav-list li a i {
+      width: 28px;
+      font-size: 1.3rem;
+      color: rgba(228, 199, 122, 0.6);
+      transition: 0.2s;
+    }
+    .nav-list li a:hover {
+      background: rgba(201, 162, 39, 0.08);
+      color: var(--warm-white);
+      border-left-color: var(--gold);
+    }
+    .nav-list li a:hover i {
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(201, 162, 39, 0.3);
+    }
+    .nav-list li.active a {
+      background: rgba(201, 162, 39, 0.08);
+      border-left-color: var(--gold);
+      color: var(--warm-white);
+    }
+    .nav-list li.active a i {
+      color: var(--gold);
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid rgba(201, 162, 39, 0.12);
+      padding-top: 1.2rem;
+      margin-top: 0.5rem;
+      flex-shrink: 0;
+    }
+    .sidebar-footer p {
+      color: rgba(255, 240, 230, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.6rem;
+    }
+    .sidebar-footer .social-icons {
+      display: flex;
+      gap: 1.2rem;
+    }
+    .sidebar-footer .social-icons a {
+      color: rgba(255, 240, 230, 0.4);
+      font-size: 1.4rem;
+      transition: 0.2s;
+    }
+    .sidebar-footer .social-icons a:hover {
+      color: var(--gold);
+      transform: scale(1.1);
+      text-shadow: 0 0 16px rgba(201, 162, 39, 0.3);
+    }
+
+    /* ----- MAIN CONTENT ----- */
+    .main-content {
+      width: 100%;
+    }
+
+    /* ----- HERO (about) ----- */
+    .hero-about {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-about::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.55);
+      background: linear-gradient(145deg, rgba(42,7,16,0.65) 0%, rgba(74,14,26,0.3) 100%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 850px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--warm-white);
+      animation: heroFade 1.8s ease;
+    }
+    @keyframes heroFade {
+      0% { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(201, 162, 39, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 0.3rem 1.8rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      color: var(--soft-gold);
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      margin-bottom: 1.5rem;
+    }
+    .hero-about h1 {
+      font-size: 4.2rem;
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .hero-about h1 strong { font-weight: 600; color: var(--soft-gold); }
+    .hero-about p {
+      font-size: 1.25rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+      font-weight: 300;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    .btn-gold {
+      background: transparent;
+      border: 1.5px solid var(--gold);
+      color: var(--warm-white);
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-decoration: none;
+      transition: 0.3s;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 0 15px rgba(201, 162, 39, 0.1);
+    }
+    .btn-gold:hover {
+      background: var(--gold);
+      color: var(--dark-maroon);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
+      transform: scale(1.03);
+    }
+    .btn-gold-filled {
+      background: var(--gold);
+      border: 1.5px solid var(--gold);
+      color: var(--dark-maroon);
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .btn-gold-filled:hover {
+      background: transparent;
+      color: var(--warm-white);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.03);
+    }
+
+    /* scroll indicator */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      color: rgba(255, 240, 230, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      animation: bounceDown 2.4s infinite;
+    }
+    .scroll-indicator i { font-size: 1.4rem; }
+    @keyframes bounceDown {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ----- sections ----- */
+    .section {
+      padding: 5rem 6%;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .section-title {
+      font-size: 2.6rem;
+      font-weight: 300;
+      color: var(--dark-maroon);
+      margin-bottom: 0.5rem;
+    }
+    .section-title span { color: var(--gold); }
+    .gold-line {
+      width: 80px;
+      height: 2px;
+      background: var(--gold);
+      margin: 0.5rem 0 2rem;
+    }
+
+    /* intro */
+    .intro-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .intro-image {
+      background: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80') center/cover;
+      min-height: 350px;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+    .intro-text p {
+      font-size: 1.15rem;
+      line-height: 1.7;
+      color: #2f2a2a;
+    }
+    .intro-label {
+      color: var(--gold);
+      font-size: 0.8rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+    }
+
+    /* story section */
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+      margin: 2rem 0;
+    }
+    .story-image {
+      background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&q=80') center/cover;
+      min-height: 320px;
+      border-radius: 24px;
+    }
+    .story-text p {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #3d3a3a;
+      margin-bottom: 1rem;
+    }
+
+    /* timeline */
+    .timeline {
+      position: relative;
+      padding: 2rem 0;
+      margin: 2rem 0;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--gold);
+      transform: translateX(-50%);
+    }
+    .timeline-item {
+      display: flex;
+      justify-content: flex-end;
+      padding: 0 2rem 2rem 0;
+      position: relative;
+      width: 50%;
+    }
+    .timeline-item:nth-child(odd) {
+      justify-content: flex-start;
+      padding: 0 0 2rem 2rem;
+      margin-left: 50%;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      right: -8px;
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 2px solid var(--dark-maroon);
+      z-index: 2;
+    }
+    .timeline-item:nth-child(odd)::before {
+      left: -8px;
+      right: auto;
+    }
+    .timeline-card {
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(4px);
+      padding: 1.5rem 2rem;
+      border-radius: 20px;
+      border: 1px solid rgba(201, 162, 39, 0.1);
+      max-width: 90%;
+      transition: 0.3s;
+    }
+    .timeline-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+    }
+    .timeline-card h4 {
+      color: var(--maroon);
+      font-weight: 400;
+      font-size: 1.3rem;
+    }
+    .timeline-card h4 i {
+      color: var(--gold);
+      margin-right: 0.5rem;
+    }
+    .timeline-card p {
+      color: #555;
+      font-size: 0.95rem;
+      margin-top: 0.3rem;
+    }
+
+    /* philosophy cards */
+    .philosophy-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .philosophy-card {
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(4px);
+      padding: 2rem 1.5rem;
+      border-radius: 24px;
+      text-align: center;
+      border: 1px solid rgba(201, 162, 39, 0.08);
+      transition: 0.3s;
+    }
+    .philosophy-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--gold);
+      box-shadow: 0 16px 32px rgba(74,14,26,0.06);
+    }
+    .philosophy-card i {
+      font-size: 2.6rem;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+    }
+    .philosophy-card h4 {
+      color: var(--maroon);
+      font-weight: 400;
+      font-size: 1.2rem;
+    }
+    .philosophy-card p {
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 0.4rem;
+    }
+
+    /* signature experience */
+    .signature-section {
+      background: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80') center/cover;
+      min-height: 400px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2rem 0;
+      position: relative;
+    }
+    .signature-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.4);
+      border-radius: 30px;
+    }
+    .signature-content {
+      position: relative;
+      z-index: 2;
+      color: var(--warm-white);
+      text-align: center;
+      padding: 2rem;
+    }
+    .signature-content h2 {
+      font-size: 3rem;
+      font-weight: 300;
+    }
+    .signature-content h2 span { color: var(--soft-gold); }
+
+    /* services showcase */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .service-card {
+      background: white;
+      padding: 2rem 1.2rem;
+      border-radius: 24px;
+      text-align: center;
+      border: 1px solid rgba(201, 162, 39, 0.06);
+      transition: 0.3s;
+    }
+    .service-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+    }
+    .service-card i {
+      font-size: 2.4rem;
+      color: var(--gold);
+      margin-bottom: 0.6rem;
+    }
+    .service-card h4 {
+      color: var(--maroon);
+      font-weight: 400;
+    }
+    .service-card p {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    /* gallery moments */
+    .moments-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin: 2rem 0;
+    }
+    .moments-grid .item {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      min-height: 200px;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+      cursor: pointer;
+    }
+    .moments-grid .item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: 0.5s;
+      display: block;
+    }
+    .moments-grid .item:hover img {
+      transform: scale(1.05);
+    }
+    .moments-grid .item .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(42,7,16,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: 0.3s;
+    }
+    .moments-grid .item:hover .overlay {
+      opacity: 1;
+    }
+    .moments-grid .item .overlay i {
+      color: var(--gold);
+      font-size: 2rem;
+      background: rgba(0,0,0,0.2);
+      padding: 1rem;
+      border-radius: 60px;
+    }
+    .moments-grid .item.tall {
+      grid-row: span 2;
+      min-height: 420px;
+    }
+    .moments-grid .item.wide {
+      grid-column: span 2;
+    }
+
+    /* commitment */
+    .commitment-section {
+      background: url('https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200&q=80') center/cover;
+      min-height: 350px;
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 2rem 0;
+      position: relative;
+    }
+    .commitment-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.5);
+      border-radius: 30px;
+    }
+    .commitment-content {
+      position: relative;
+      z-index: 2;
+      color: var(--warm-white);
+      text-align: center;
+      padding: 2rem;
+    }
+    .commitment-content h2 {
+      font-size: 2.8rem;
+      font-weight: 300;
+    }
+    .commitment-content h2 span { color: var(--soft-gold); }
+    .commitment-content .quote {
+      font-size: 1.4rem;
+      font-style: italic;
+      color: var(--soft-gold);
+      margin-top: 1rem;
+    }
+
+    /* stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+      text-align: center;
+    }
+    .stat-item {
+      background: rgba(255,255,255,0.4);
+      backdrop-filter: blur(4px);
+      padding: 1.5rem 1rem;
+      border-radius: 24px;
+      border: 1px solid rgba(201, 162, 39, 0.06);
+    }
+    .stat-number {
+      font-size: 2.8rem;
+      font-weight: 300;
+      color: var(--maroon);
+    }
+    .stat-label {
+      color: #3d2e2e;
+      letter-spacing: 1px;
+      font-size: 0.9rem;
+    }
+
+    /* team */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .team-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+      transition: 0.3s;
+      text-align: center;
+    }
+    .team-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+    }
+    .team-card img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    .team-card .info {
+      padding: 1.2rem 1rem 1.5rem;
+    }
+    .team-card .info h4 {
+      color: var(--maroon);
+      font-weight: 400;
+    }
+    .team-card .info p {
+      color: #888;
+      font-size: 0.85rem;
+    }
+
+    /* CTA */
+    .cta-big {
+      background: var(--maroon);
+      padding: 4rem 2rem;
+      border-radius: 40px;
+      text-align: center;
+      color: var(--warm-white);
+      margin: 3rem 0;
+    }
+    .cta-big h2 {
+      font-size: 3rem;
+      font-weight: 300;
+    }
+    .cta-big h2 span { color: var(--soft-gold); }
+
+    /* footer (identical) */
+    .footer {
+      background: var(--dark-maroon);
+      color: rgba(255, 240, 230, 0.7);
+      padding: 4rem 6% 2rem;
+      margin-top: 4rem;
+      border-top: 1px solid rgba(201, 162, 39, 0.2);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+    .footer h4 {
+      color: var(--soft-gold);
+      font-weight: 400;
+      letter-spacing: 1px;
+      margin-bottom: 1.2rem;
+    }
+    .footer a {
+      color: rgba(255, 240, 230, 0.6);
+      text-decoration: none;
+      display: block;
+      margin: 0.4rem 0;
+      transition: 0.2s;
+    }
+    .footer a:hover { color: var(--gold); }
+    .footer-social i {
+      font-size: 1.6rem;
+      margin-right: 0.8rem;
+      transition: 0.2s;
+    }
+    .footer-social i:hover {
+      color: var(--gold);
+      transform: scale(1.1);
+    }
+    .footer-bottom {
+      border-top: 1px solid rgba(201, 162, 39, 0.1);
+      padding-top: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* responsive */
+    @media (max-width: 1024px) {
+      .hero-about h1 { font-size: 3.2rem; }
+      .philosophy-grid { grid-template-columns: repeat(2, 1fr); }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .team-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .moments-grid { grid-template-columns: repeat(2, 1fr); }
+      .moments-grid .item.tall { grid-row: span 1; min-height: 200px; }
+      .moments-grid .item.wide { grid-column: span 1; }
+    }
+    @media (max-width: 768px) {
+      .sidebar-right { width: 88vw; }
+      .hero-about h1 { font-size: 2.6rem; }
+      .intro-grid { grid-template-columns: 1fr; }
+      .story-grid { grid-template-columns: 1fr; }
+      .timeline::before { left: 20px; }
+      .timeline-item { width: 100%; padding: 0 0 2rem 3rem; justify-content: flex-start; margin-left: 0; }
+      .timeline-item:nth-child(odd) { padding: 0 0 2rem 3rem; margin-left: 0; }
+      .timeline-item::before { left: 12px; right: auto; }
+      .timeline-item:nth-child(odd)::before { left: 12px; right: auto; }
+      .philosophy-grid { grid-template-columns: 1fr 1fr; }
+      .services-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .moments-grid { grid-template-columns: 1fr 1fr; }
+      .hamburger-btn { top: 1.2rem; right: 1.2rem; padding: 0.6rem 0.9rem; font-size: 1.5rem; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .signature-content h2 { font-size: 2.2rem; }
+      .commitment-content h2 { font-size: 2rem; }
+    }
+    @media (max-width: 480px) {
+      .hero-about h1 { font-size: 2rem; }
+      .section-title { font-size: 2rem; }
+      .philosophy-grid { grid-template-columns: 1fr; }
+      .team-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .moments-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .timeline-card { padding: 1rem 1.2rem; }
+      .timeline-card h4 { font-size: 1.1rem; }
+    }
+    .text-center { text-align: center; }
+    .mt-2 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <!-- HAMBURGER -->
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">
+    <i class="fas fa-bars"></i>
+  </button>
+  <div class="menu-overlay" id="menuOverlay"></div>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right" id="rightSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <i class="fas fa-crown"></i>
+        <h2>THE <span>AURELIA</span> GRAND</h2>
+      </div>
+      <button class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <ul class="nav-list">
+      <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li class="active"><a href="about.html"><i class="fas fa-hotel"></i> About</a></li>
+      <li><a href="rooms.html"><i class="fas fa-bed"></i> Rooms & Suites</a></li>
+      <li><a href="dining.html"><i class="fas fa-utensils"></i> Dining</a></li>
+      <li><a href="amenities.html"><i class="fas fa-spa"></i> Amenities</a></li>
+      <li><a href="gallery.html"><i class="fas fa-images"></i> Gallery</a></li>
+      <li><a href="booking.html"><i class="fas fa-calendar-check"></i> Booking</a></li>
+      <li><a href="booking.html#contact"><i class="fas fa-phone-alt"></i> Contact</a></li>
+    </ul>
+    <div class="sidebar-footer">
+      <p><i class="fas fa-quote-left" style="color:var(--gold);"></i> Where Luxury Becomes a Memory.</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-tiktok"></i></a>
+        <a href="#"><i class="fab fa-pinterest-p"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <!-- HERO -->
+    <section class="hero-about" id="hero">
+      <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-star" style="color:var(--gold);"></i> THE AURELIA GRAND</div>
+        <h1><strong>"A Legacy of Luxury,</strong> A Story of Excellence."</h1>
+        <p>Discover the vision, passion, and timeless hospitality behind The Aurelia Grand.</p>
+        <div class="hero-buttons">
+          <a href="#story" class="btn-gold-filled"><i class="fas fa-book-open"></i> DISCOVER OUR STORY</a>
+        </div>
+      </div>
+      <div class="scroll-indicator" id="scrollIndicator">
+        <span>DISCOVER MORE</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="section" id="story">
+      <div class="intro-grid">
+        <div class="intro-image"></div>
+        <div class="intro-text">
+          <div class="intro-label">Our Philosophy</div>
+          <h2 class="section-title">"More Than <span>a Hotel.</span>"</h2>
+          <div class="gold-line"></div>
+          <p>The Aurelia Grand was created as a destination where timeless elegance meets modern hospitality. Every space, service, and experience is thoughtfully designed to make every stay memorable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- OUR STORY -->
+    <section class="section">
+      <div class="story-grid">
+        <div class="story-image"></div>
+        <div class="story-text">
+          <div class="intro-label">Our Story</div>
+          <h2 class="section-title">"Built Around a Love for <span>Extraordinary Hospitality.</span>"</h2>
+          <div class="gold-line"></div>
+          <p>The Aurelia Grand was born from a vision to create a sanctuary where luxury, comfort, and personalized service come together in perfect harmony. Every detail, from the warm maroon interiors to the soft glow of gold accents, reflects a deep commitment to timeless elegance.</p>
+          <p>We believe that a stay should be more than just a night away — it should be an experience that lingers in memory. That is why we have carefully curated every space, service, and interaction to ensure that each guest feels truly seen, valued, and cared for.</p>
+          <p>Today, The Aurelia Grand stands as a testament to the belief that extraordinary hospitality is not just about what we offer, but how we make you feel.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIMELINE -->
+    <section class="section">
+      <h2 class="section-title">"Our <span>Journey.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-card"><h4><i class="fas fa-lightbulb"></i> The Vision</h4><p>The idea of creating an exceptional luxury destination.</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-card"><h4><i class="fas fa-building"></i> The Foundation</h4><p>A vision transformed into an elegant hospitality experience.</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-card"><h4><i class="fas fa-spa"></i> The Experience</h4><p>Rooms, dining, wellness, and personalized service brought together.</p></div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-card"><h4><i class="fas fa-rocket"></i> The Future</h4><p>A continuing commitment to unforgettable hospitality.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHILOSOPHY -->
+    <section class="section">
+      <h2 class="section-title">"The Aurelia <span>Philosophy.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="philosophy-grid">
+        <div class="philosophy-card"><i class="fas fa-hourglass-half"></i><h4>Timeless Elegance</h4><p>Luxury that never goes out of style.</p></div>
+        <div class="philosophy-card"><i class="fas fa-user-tie"></i><h4>Personalized Service</h4><p>Every guest deserves an experience designed around them.</p></div>
+        <div class="philosophy-card"><i class="fas fa-search-plus"></i><h4>Attention to Detail</h4><p>Because extraordinary experiences live in the smallest details.</p></div>
+        <div class="philosophy-card"><i class="fas fa-hand-heart"></i><h4>Authentic Hospitality</h4><p>Warmth, care, and genuine human connection.</p></div>
+      </div>
+    </section>
+
+    <!-- SIGNATURE EXPERIENCE -->
+    <section class="section">
+      <div class="signature-section">
+        <div class="signature-content">
+          <h2>"Designed for <span>the Extraordinary.</span>"</h2>
+          <p style="font-size:1.2rem;max-width:600px;margin:1rem auto;">From the moment you arrive to the moment you leave, every detail is carefully considered to make your experience exceptional.</p>
+          <a href="dining.html" class="btn-gold-filled" style="display:inline-block;">EXPLORE OUR EXPERIENCES</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section">
+      <h2 class="section-title">"Everything You Need, <span>Thoughtfully Delivered.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="services-grid">
+        <div class="service-card"><i class="fas fa-concierge-bell"></i><h4>24/7 Concierge</h4><p>Assistance around the clock</p></div>
+        <div class="service-card"><i class="fas fa-car"></i><h4>Private Airport Transfers</h4><p>Seamless arrival experience</p></div>
+        <div class="service-card"><i class="fas fa-utensils"></i><h4>Fine Dining</h4><p>Exceptional culinary experiences</p></div>
+        <div class="service-card"><i class="fas fa-spa"></i><h4>Wellness & Spa</h4><p>Restorative treatments</p></div>
+        <div class="service-card"><i class="fas fa-gem"></i><h4>Personalized Experiences</h4><p>Curated just for you</p></div>
+        <div class="service-card"><i class="fas fa-calendar-check"></i><h4>Private Events</h4><p>Celebrations and gatherings</p></div>
+      </div>
+      <div class="text-center"><a href="amenities.html" class="btn-gold" style="border-color:var(--gold);color:var(--maroon);display:inline-block;">EXPLORE AMENITIES</a></div>
+    </section>
+
+    <!-- MOMENTS GALLERY -->
+    <section class="section">
+      <h2 class="section-title">"A Glimpse of <span>The Aurelia Grand.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="moments-grid">
+        <div class="item"><img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=80" alt="Lobby"><div class="overlay"><i class="fas fa-expand"></i></div></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&q=80" alt="Suite"><div class="overlay"><i class="fas fa-expand"></i></div></div>
+        <div class="item tall"><img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80" alt="Hotel Exterior"><div class="overlay"><i class="fas fa-expand"></i></div></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" alt="Dining"><div class="overlay"><i class="fas fa-expand"></i></div></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?w=400&q=80" alt="Pool"><div class="overlay"><i class="fas fa-expand"></i></div></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&q=80" alt="Spa"><div class="overlay"><i class="fas fa-expand"></i></div></div>
+      </div>
+      <div class="text-center"><a href="gallery.html" class="btn-gold" style="border-color:var(--gold);color:var(--maroon);display:inline-block;">VIEW FULL GALLERY</a></div>
+    </section>
+
+    <!-- COMMITMENT -->
+    <section class="section">
+      <div class="commitment-section">
+        <div class="commitment-content">
+          <h2>"A Commitment to <span>Excellence.</span>"</h2>
+          <div style="display:flex;flex-wrap:wrap;gap:1rem 2rem;justify-content:center;margin:1rem 0;font-size:1.05rem;">
+            <span><i class="fas fa-check-circle" style="color:var(--gold);"></i> Exceptional Service</span>
+            <span><i class="fas fa-check-circle" style="color:var(--gold);"></i> Impeccable Spaces</span>
+            <span><i class="fas fa-check-circle" style="color:var(--gold);"></i> Personalized Hospitality</span>
+            <span><i class="fas fa-check-circle" style="color:var(--gold);"></i> Memorable Experiences</span>
+          </div>
+          <div class="quote">"Luxury is not simply what we offer. It is how we make you feel."</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="section">
+      <div class="stats-grid">
+        <div class="stat-item"><div class="stat-number">24/7</div><div class="stat-label">Concierge Service</div></div>
+        <div class="stat-item"><div class="stat-number">5★</div><div class="stat-label">Luxury Experience</div></div>
+        <div class="stat-item"><div class="stat-number">100%</div><div class="stat-label">Personalized Hospitality</div></div>
+        <div class="stat-item"><div class="stat-number">365</div><div class="stat-label">Days of Exceptional Service</div></div>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section class="section">
+      <h2 class="section-title">"People Behind <span>the Experience.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="team-grid">
+        <div class="team-card"><img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=400&q=80" alt="General Manager"><div class="info"><h4>James Mitchell</h4><p>General Manager</p></div></div>
+        <div class="team-card"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&q=80" alt="Head Concierge"><div class="info"><h4>Sophia Laurent</h4><p>Head Concierge</p></div></div>
+        <div class="team-card"><img src="https://images.unsplash.com/photo-1556911220-bff31c812dba?w=400&q=80" alt="Executive Chef"><div class="info"><h4>Marco Rossi</h4><p>Executive Chef</p></div></div>
+        <div class="team-card"><img src="https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&q=80" alt="Guest Experience Manager"><div class="info"><h4>Amara Khan</h4><p>Guest Experience Manager</p></div></div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="section">
+      <div class="cta-big">
+        <h2>"Come Discover <span>The Aurelia Grand.</span>"</h2>
+        <p style="font-size:1.2rem; margin:1rem 0;">Where every stay becomes a story worth remembering.</p>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+          <a href="rooms.html" class="btn-gold" style="border-color:var(--warm-white); color:var(--warm-white);">EXPLORE ROOMS</a>
+          <a href="booking.html" class="btn-gold-filled" style="background:var(--warm-white); color:var(--dark-maroon); border-color:var(--warm-white);">BOOK YOUR STAY</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-grid">
+        <div><h4>THE AURELIA GRAND</h4><p style="font-size:0.9rem;">Luxury boutique hotel where elegance meets memory.</p></div>
+        <div><h4>Explore</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="rooms.html">Rooms</a><a href="dining.html">Dining</a><a href="amenities.html">Amenities</a><a href="gallery.html">Gallery</a><a href="booking.html">Booking</a></div>
+        <div><h4>Contact</h4><a href="#"><i class="fas fa-map-pin"></i> 888 Luxury Ave, NYC</a><a href="#"><i class="fas fa-phone-alt"></i> +1 (800) 555‑AURELIA</a><a href="#"><i class="fas fa-envelope"></i> stay@aureliagrand.com</a></div>
+        <div><h4>Follow</h4><div class="footer-social"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-tiktok"></i></a><a href="#"><i class="fab fa-pinterest-p"></i></a></div></div>
+      </div>
+      <div class="footer-bottom">© 2026 The Aurelia Grand. All rights reserved. <i class="fas fa-crown" style="color:var(--gold);"></i></div>
+    </footer>
+  </main>
+
+  <script>
+    (function() {
+      // --- SIDEBAR ---
+      const hamburger = document.getElementById('hamburgerBtn');
+      const sidebar = document.getElementById('rightSidebar');
+      const overlay = document.getElementById('menuOverlay');
+      const closeBtn = document.getElementById('sidebarCloseBtn');
+      const icon = hamburger.querySelector('i');
+
+      function openMenu() {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+        hamburger.classList.add('open');
+        icon.className = 'fas fa-times';
+        document.body.style.overflow = 'hidden';
+      }
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('open');
+        icon.className = 'fas fa-bars';
+        document.body.style.overflow = '';
+      }
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sidebar.classList.contains('open')) closeMenu();
+        else openMenu();
+      });
+      closeBtn.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
+      });
+
+      // --- SCROLL INDICATOR ---
+      document.getElementById('scrollIndicator').addEventListener('click', () => {
+        document.getElementById('story').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // --- STATS (simple reveal) ---
+      const statNumbers = document.querySelectorAll('.stat-number');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // just keep visible
+          }
+        });
+      }, { threshold: 0.5 });
+      statNumbers.forEach(s => observer.observe(s));
+    })();
+  </script>
+</body>
+</html>

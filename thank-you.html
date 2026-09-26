@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5" />
+  <title>The Aurelia Grand · Thank You</title>
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    /* ----- GLOBAL RESET ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --maroon: #4A0E1A;
+      --dark-maroon: #2A0710;
+      --gold: #C9A227;
+      --soft-gold: #E4C77A;
+      --warm-white: #FAF7F2;
+    }
+
+    html, body {
+      min-height: 100vh;
+      min-height: 100dvh;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: var(--dark-maroon);
+      overflow-y: auto;
+    }
+
+    /* ----- FULL-SCREEN BACKGROUND ----- */
+    .bg-container {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80') center/cover no-repeat;
+      animation: slowZoom 20s ease-in-out infinite alternate;
+    }
+    .bg-container::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.55);
+      background: radial-gradient(ellipse at center, rgba(42,7,16,0.3) 0%, rgba(42,7,16,0.7) 100%);
+      z-index: 1;
+    }
+    @keyframes slowZoom {
+      0% { transform: scale(1); }
+      100% { transform: scale(1.06); }
+    }
+
+    /* ----- FLOATING PARTICLES (subtle) ----- */
+    .particles {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(201, 162, 39, 0.08);
+      animation: floatParticle 18s infinite alternate ease-in-out;
+    }
+    .particle:nth-child(1) { width: 300px; height: 300px; top: -5%; left: -5%; animation-duration: 22s; }
+    .particle:nth-child(2) { width: 200px; height: 200px; bottom: -3%; right: -3%; animation-duration: 18s; animation-delay: 2s; }
+    .particle:nth-child(3) { width: 150px; height: 150px; top: 40%; left: 60%; animation-duration: 20s; animation-delay: 4s; }
+    .particle:nth-child(4) { width: 100px; height: 100px; top: 20%; right: 10%; animation-duration: 16s; animation-delay: 1s; }
+    .particle:nth-child(5) { width: 120px; height: 120px; bottom: 20%; left: 10%; animation-duration: 24s; animation-delay: 3s; }
+    @keyframes floatParticle {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      100% { transform: translate(40px, -30px) scale(1.2); opacity: 0.6; }
+    }
+
+    /* ----- MAIN CARD ----- */
+    .thankyou-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 720px;
+      max-height: 95vh;
+      max-height: 95dvh;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 48px;
+      padding: 2.8rem 2.5rem;
+      border: 1px solid rgba(201, 162, 39, 0.2);
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      text-align: center;
+      animation: cardReveal 1s ease-out forwards;
+      opacity: 0;
+      transform: translateY(30px);
+      scrollbar-width: thin;
+      scrollbar-color: rgba(201, 162, 39, 0.3) transparent;
+    }
+    .thankyou-card::-webkit-scrollbar {
+      width: 4px;
+    }
+    .thankyou-card::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .thankyou-card::-webkit-scrollbar-thumb {
+      background: rgba(201, 162, 39, 0.3);
+      border-radius: 10px;
+    }
+    @keyframes cardReveal {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ----- SUCCESS ICON ----- */
+    .success-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: rgba(201, 162, 39, 0.12);
+      border: 2px solid var(--gold);
+      margin-bottom: 1.2rem;
+      flex-shrink: 0;
+      animation: iconPulse 2s ease-in-out infinite, iconScale 0.8s ease-out 0.3s both;
+    }
+    .success-icon i {
+      font-size: 2.6rem;
+      color: var(--gold);
+      filter: drop-shadow(0 0 20px rgba(201, 162, 39, 0.2));
+    }
+    @keyframes iconScale {
+      0% { transform: scale(0); }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    @keyframes iconPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(201, 162, 39, 0.15); }
+      50% { box-shadow: 0 0 0 20px rgba(201, 162, 39, 0); }
+    }
+
+    /* ----- TYPOGRAPHY ----- */
+    .thankyou-card h1 {
+      font-size: 3.2rem;
+      font-weight: 300;
+      color: var(--warm-white);
+      letter-spacing: 2px;
+      margin-bottom: 0.1rem;
+      animation: fadeUp 0.8s ease 0.5s both;
+      word-break: break-word;
+    }
+    .thankyou-card h1 span {
+      font-weight: 600;
+      color: var(--soft-gold);
+    }
+    .thankyou-card .subhead {
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: var(--soft-gold);
+      letter-spacing: 3px;
+      margin-bottom: 0.5rem;
+      animation: fadeUp 0.8s ease 0.7s both;
+      word-break: break-word;
+    }
+    .thankyou-card .message {
+      font-size: 0.95rem;
+      color: rgba(255, 240, 230, 0.7);
+      line-height: 1.6;
+      max-width: 520px;
+      margin: 0 auto 1.2rem;
+      animation: fadeUp 0.8s ease 0.9s both;
+      word-break: break-word;
+    }
+    .thankyou-card .personalized {
+      font-size: 1rem;
+      color: var(--warm-white);
+      font-weight: 300;
+      margin-bottom: 0.2rem;
+      animation: fadeUp 0.8s ease 1.1s both;
+      word-break: break-word;
+    }
+    .thankyou-card .personalized strong {
+      color: var(--soft-gold);
+      font-weight: 400;
+    }
+
+    /* ----- GOLD DIVIDER ----- */
+    .gold-divider {
+      width: 50px;
+      height: 2px;
+      background: var(--gold);
+      margin: 0.8rem auto;
+      border-radius: 4px;
+      animation: fadeUp 0.8s ease 1.2s both;
+      flex-shrink: 0;
+    }
+
+    /* ----- CONFIRMATION DETAILS CARD ----- */
+    .confirmation-details {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      padding: 1.2rem 1.8rem;
+      margin: 0.8rem 0 1.2rem;
+      border: 1px solid rgba(201, 162, 39, 0.06);
+      animation: fadeUp 0.8s ease 1.4s both;
+      text-align: left;
+    }
+    .confirmation-details .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.4rem 0;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.04);
+      font-size: 0.92rem;
+      color: rgba(255, 240, 230, 0.8);
+      gap: 1rem;
+    }
+    .confirmation-details .detail-row:last-child {
+      border-bottom: none;
+    }
+    .confirmation-details .detail-row .label {
+      font-weight: 300;
+      letter-spacing: 0.5px;
+      opacity: 0.7;
+      flex-shrink: 0;
+      font-size: 0.85rem;
+    }
+    .confirmation-details .detail-row .value {
+      font-weight: 400;
+      color: var(--warm-white);
+      text-align: right;
+      word-break: break-word;
+      flex: 1;
+    }
+    .confirmation-details .detail-row .value.gold {
+      color: var(--gold);
+      font-weight: 500;
+    }
+    .confirmation-details .detail-row .value.soft {
+      color: var(--soft-gold);
+    }
+
+    /* ----- BUTTONS ----- */
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      justify-content: center;
+      margin-top: 1.2rem;
+      animation: fadeUp 0.8s ease 1.8s both;
+    }
+    .btn-gold {
+      background: transparent;
+      border: 1.5px solid var(--gold);
+      color: var(--warm-white);
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-decoration: none;
+      transition: 0.3s;
+      backdrop-filter: blur(2px);
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+    }
+    .btn-gold:hover {
+      background: var(--gold);
+      color: var(--dark-maroon);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.02);
+    }
+    .btn-gold-filled {
+      background: var(--gold);
+      border: 1.5px solid var(--gold);
+      color: var(--dark-maroon);
+      padding: 0.7rem 2rem;
+      border-radius: 60px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-decoration: none;
+      transition: 0.3s;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      white-space: nowrap;
+    }
+    .btn-gold-filled:hover {
+      background: transparent;
+      color: var(--warm-white);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.15);
+      transform: scale(1.02);
+    }
+
+    /* small text link */
+    .explore-link {
+      display: inline-block;
+      margin-top: 1rem;
+      color: rgba(255, 240, 230, 0.4);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 1px;
+      transition: 0.3s;
+      border-bottom: 1px solid transparent;
+      animation: fadeUp 0.8s ease 2s both;
+    }
+    .explore-link:hover {
+      color: var(--gold);
+      border-bottom-color: var(--gold);
+    }
+
+    /* closing message */
+    .closing {
+      margin-top: 1.2rem;
+      font-size: 0.9rem;
+      color: rgba(255, 240, 230, 0.5);
+      font-style: italic;
+      animation: fadeUp 0.8s ease 2.2s both;
+      line-height: 1.6;
+    }
+    .closing .concierge {
+      color: var(--soft-gold);
+      font-style: normal;
+      letter-spacing: 1px;
+    }
+
+    /* ----- RESPONSIVE ----- */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem;
+      }
+      .thankyou-card {
+        padding: 2rem 1.5rem;
+        border-radius: 32px;
+        max-width: 100%;
+        max-height: 92vh;
+        max-height: 92dvh;
+      }
+      .thankyou-card h1 {
+        font-size: 2.4rem;
+      }
+      .thankyou-card .subhead {
+        font-size: 0.95rem;
+      }
+      .confirmation-details {
+        padding: 1rem 1.2rem;
+      }
+      .confirmation-details .detail-row {
+        font-size: 0.82rem;
+        flex-wrap: wrap;
+        gap: 0.2rem;
+      }
+      .confirmation-details .detail-row .value {
+        text-align: left;
+        flex: 1 1 100%;
+      }
+      .buttons {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-gold, .btn-gold-filled {
+        white-space: normal;
+        justify-content: center;
+        padding: 0.7rem 1.5rem;
+        width: 100%;
+      }
+      .success-icon {
+        width: 60px;
+        height: 60px;
+      }
+      .success-icon i {
+        font-size: 2rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .thankyou-card {
+        padding: 1.5rem 1rem;
+        border-radius: 24px;
+      }
+      .thankyou-card h1 {
+        font-size: 2rem;
+      }
+      .thankyou-card .message {
+        font-size: 0.85rem;
+      }
+      .confirmation-details {
+        padding: 0.8rem 0.8rem;
+      }
+      .confirmation-details .detail-row {
+        font-size: 0.78rem;
+        padding: 0.3rem 0;
+      }
+      .confirmation-details .detail-row .label {
+        font-size: 0.75rem;
+      }
+    }
+
+    /* helper animations */
+    @keyframes fadeUp {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background -->
+  <div class="bg-container"></div>
+
+  <!-- Subtle Particles -->
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="thankyou-card" id="thankyouCard">
+    <!-- Success Icon -->
+    <div class="success-icon" aria-label="Success">
+      <i class="fas fa-check-circle"></i>
+    </div>
+
+    <!-- Headings -->
+    <h1>Thank <span>You.</span></h1>
+    <div class="subhead">Your Aurelia Experience Awaits.</div>
+    <div class="message">
+      Your request has been received successfully. We look forward to welcoming you to The Aurelia Grand.
+    </div>
+
+    <!-- Personalized greeting -->
+    <div class="personalized" id="personalizedGreeting">
+      <strong id="guestNameDisplay">Dear Guest,</strong>
+    </div>
+    <div class="personalized" style="font-size:0.9rem;opacity:0.8;margin-top:-0.1rem;">
+      We are delighted to welcome you to The Aurelia Grand.
+    </div>
+
+    <div class="gold-divider"></div>
+
+    <!-- Confirmation Details -->
+    <div class="confirmation-details" id="detailsContainer">
+      <!-- Will be populated by JavaScript -->
+    </div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <a href="index.html" class="btn-gold"><i class="fas fa-home"></i> RETURN TO HOME</a>
+      <a href="rooms.html" class="btn-gold-filled"><i class="fas fa-bed"></i> EXPLORE OUR ROOMS</a>
+    </div>
+
+    <!-- Explore link -->
+    <a href="index.html" class="explore-link">Explore The Aurelia Grand</a>
+
+    <!-- Closing message -->
+    <div class="closing">
+      We look forward to making your stay unforgettable.<br />
+      <span class="concierge">— The Aurelia Grand Concierge</span>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---- HELPER: get data from localStorage ----
+      function getData(key) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) return JSON.parse(raw);
+          return null;
+        } catch (e) { return null; }
+      }
+
+      // ---- HELPER: generate confirmation number ----
+      function generateConfNumber(prefix, existing) {
+        if (existing) return existing;
+        const now = new Date();
+        const year = now.getFullYear();
+        const rand = Math.floor(100000 + Math.random() * 900000);
+        const num = prefix + '-' + year + '-' + rand;
+        localStorage.setItem('aureliaConfNumber', num);
+        return num;
+      }
+
+      // ---- DETECT booking type ----
+      const bookingData = getData('aureliaBooking');
+      const diningData = getData('aureliaDining');
+      const contactData = getData('aureliaContact');
+
+      let type = 'general';
+      let data = null;
+      let confPrefix = 'AUR';
+
+      if (bookingData && bookingData.name) {
+        type = 'room';
+        data = bookingData;
+        confPrefix = 'AUR';
+      } else if (diningData && diningData.name) {
+        type = 'dining';
+        data = diningData;
+        confPrefix = 'DIN';
+      } else if (contactData && contactData.name) {
+        type = 'contact';
+        data = contactData;
+        confPrefix = 'MSG';
+      } else {
+        // check URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const typeParam = urlParams.get('type');
+        if (typeParam === 'room') {
+          const stored = getData('aureliaBooking');
+          if (stored && stored.name) { data = stored; type = 'room'; confPrefix = 'AUR'; }
+        } else if (typeParam === 'dining') {
+          const stored = getData('aureliaDining');
+          if (stored && stored.name) { data = stored; type = 'dining'; confPrefix = 'DIN'; }
+        }
+      }
+
+      // ---- generate or retrieve confirmation number ----
+      let confNumber = localStorage.getItem('aureliaConfNumber');
+      if (!confNumber) {
+        confNumber = generateConfNumber(confPrefix, null);
+      } else if (!confNumber.startsWith(confPrefix)) {
+        confNumber = generateConfNumber(confPrefix, null);
+      }
+
+      // ---- get guest name safely ----
+      let guestName = 'Guest';
+      if (data && data.name) {
+        guestName = data.name;
+      }
+
+      // ---- display personalized greeting ----
+      const nameDisplay = document.getElementById('guestNameDisplay');
+      if (nameDisplay) {
+        nameDisplay.textContent = 'Dear ' + guestName + ',';
+      }
+
+      // ---- build details HTML ----
+      const detailsContainer = document.getElementById('detailsContainer');
+      let detailsHTML = '';
+
+      if (type === 'room' && data) {
+        const roomName = data.room || 'Selected Room';
+        const checkin = data.checkin ? new Date(data.checkin).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+        const checkout = data.checkout ? new Date(data.checkout).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+        const adults = data.adults || '—';
+        const children = data.children || '0';
+        const total = data.total || '—';
+
+        // calculate nights
+        let nights = '—';
+        if (data.checkin && data.checkout) {
+          const d1 = new Date(data.checkin);
+          const d2 = new Date(data.checkout);
+          if (d2 > d1) {
+            nights = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+          }
+        }
+
+        detailsHTML = `
+          <div class="detail-row"><span class="label">Confirmation</span><span class="value gold">${confNumber}</span></div>
+          <div class="detail-row"><span class="label">Guest</span><span class="value">${data.name || '—'}</span></div>
+          <div class="detail-row"><span class="label">Room / Suite</span><span class="value soft">${roomName}</span></div>
+          <div class="detail-row"><span class="label">Check-in</span><span class="value">${checkin}</span></div>
+          <div class="detail-row"><span class="label">Check-out</span><span class="value">${checkout}</span></div>
+          <div class="detail-row"><span class="label">Guests</span><span class="value">${adults} Adults${children > 0 ? ', ' + children + ' Children' : ''}</span></div>
+          <div class="detail-row"><span class="label">Nights</span><span class="value">${nights}</span></div>
+          <div class="detail-row"><span class="label">Estimated Total</span><span class="value gold">${total}</span></div>
+        `;
+      } else if (type === 'dining' && data) {
+        const restaurant = data.restaurant || 'Selected Restaurant';
+        const date = data.date ? new Date(data.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+        const time = data.time || '—';
+        const guests = data.guests || '—';
+
+        detailsHTML = `
+          <div class="detail-row"><span class="label">Reservation</span><span class="value gold">${confNumber}</span></div>
+          <div class="detail-row"><span class="label">Guest</span><span class="value">${data.name || '—'}</span></div>
+          <div class="detail-row"><span class="label">Restaurant</span><span class="value soft">${restaurant}</span></div>
+          <div class="detail-row"><span class="label">Date</span><span class="value">${date}</span></div>
+          <div class="detail-row"><span class="label">Time</span><span class="value">${time}</span></div>
+          <div class="detail-row"><span class="label">Guests</span><span class="value">${guests}</span></div>
+        `;
+      } else if (type === 'contact' && data) {
+        const subject = data.subject || '—';
+        detailsHTML = `
+          <div class="detail-row"><span class="label">Message ID</span><span class="value gold">${confNumber}</span></div>
+          <div class="detail-row"><span class="label">Name</span><span class="value">${data.name || '—'}</span></div>
+          <div class="detail-row"><span class="label">Email</span><span class="value">${data.email || '—'}</span></div>
+          <div class="detail-row"><span class="label">Subject</span><span class="value soft">${subject}</span></div>
+          <div class="detail-row"><span class="label">Status</span><span class="value gold">Received</span></div>
+        `;
+      } else {
+        // general / fallback
+        detailsHTML = `
+          <div class="detail-row"><span class="label">Confirmation</span><span class="value gold">${confNumber}</span></div>
+          <div class="detail-row"><span class="label">Status</span><span class="value soft">We have received your request</span></div>
+          <div class="detail-row"><span class="label">Guest</span><span class="value">${guestName}</span></div>
+        `;
+      }
+
+      detailsContainer.innerHTML = detailsHTML;
+    })();
+  </script>
+</body>
+</html>
