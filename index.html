@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5">
+  <title>The Aurelia Grand · Luxury Boutique Hotel</title>
+  <!-- Font Awesome 6 (Free) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --maroon: #4A0E1A;
+      --dark-maroon: #2A0710;
+      --gold: #C9A227;
+      --soft-gold: #E4C77A;
+      --warm-white: #FAF7F2;
+      --glass-bg: rgba(74, 14, 26, 0.55);
+      --shadow-elegant: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+      background: var(--warm-white);
+      color: #1e1a1a;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    /* ----- HAMBURGER BUTTON (top-right) ----- */
+    .hamburger-btn {
+      position: fixed;
+      top: 1.8rem;
+      right: 2rem;
+      z-index: 1200;
+      background: rgba(74, 14, 26, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(201, 162, 39, 0.4);
+      border-radius: 60px;
+      padding: 0.75rem 1.1rem;
+      font-size: 1.8rem;
+      color: var(--warm-white);
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+    }
+    .hamburger-btn:hover {
+      background: rgba(201, 162, 39, 0.2);
+      border-color: var(--gold);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.04);
+    }
+    .hamburger-btn i {
+      transition: transform 0.3s ease;
+    }
+    .hamburger-btn.open i {
+      transform: rotate(90deg);
+    }
+
+    /* ----- OVERLAY (blur + darken) ----- */
+    .menu-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1050;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s ease, visibility 0s 0.5s;
+    }
+    .menu-overlay.active {
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s ease, visibility 0s 0s;
+    }
+
+    /* ----- RIGHT SIDEBAR (off-canvas) ----- */
+    .sidebar-right {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 420px;
+      max-width: 92vw;
+      height: 100vh;
+      z-index: 1100;
+      background: rgba(42, 7, 16, 0.92);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-left: 1px solid rgba(201, 162, 39, 0.25);
+      box-shadow: -10px 0 50px rgba(0, 0, 0, 0.5);
+      transform: translateX(110%);
+      transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      flex-direction: column;
+      padding: 2rem 1.8rem 1.5rem;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--gold) rgba(201, 162, 39, 0.1);
+    }
+    .sidebar-right::-webkit-scrollbar {
+      width: 5px;
+    }
+    .sidebar-right::-webkit-scrollbar-track {
+      background: rgba(201, 162, 39, 0.05);
+      border-radius: 10px;
+    }
+    .sidebar-right::-webkit-scrollbar-thumb {
+      background: var(--gold);
+      border-radius: 10px;
+    }
+    .sidebar-right.open {
+      transform: translateX(0);
+    }
+
+    /* sidebar header */
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.15);
+      padding-bottom: 1.2rem;
+      margin-bottom: 1.8rem;
+      flex-shrink: 0;
+    }
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sidebar-brand i {
+      font-size: 2rem;
+      color: var(--gold);
+      filter: drop-shadow(0 0 8px rgba(201, 162, 39, 0.3));
+    }
+    .sidebar-brand h2 {
+      font-size: 1.4rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      color: var(--warm-white);
+    }
+    .sidebar-brand h2 span {
+      font-weight: 600;
+      color: var(--soft-gold);
+    }
+    .sidebar-close {
+      background: transparent;
+      border: none;
+      color: var(--warm-white);
+      font-size: 1.8rem;
+      cursor: pointer;
+      padding: 0.3rem 0.6rem;
+      border-radius: 40px;
+      transition: 0.2s;
+    }
+    .sidebar-close:hover {
+      color: var(--gold);
+      transform: rotate(90deg);
+    }
+
+    /* nav list */
+    .nav-list {
+      list-style: none;
+      flex: 1 1 auto;
+      padding: 0.5rem 0 1rem;
+    }
+    .nav-list li {
+      opacity: 0;
+      transform: translateX(20px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      margin-bottom: 0.2rem;
+    }
+    .sidebar-right.open .nav-list li {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .sidebar-right.open .nav-list li:nth-child(1) { transition-delay: 0.05s; }
+    .sidebar-right.open .nav-list li:nth-child(2) { transition-delay: 0.10s; }
+    .sidebar-right.open .nav-list li:nth-child(3) { transition-delay: 0.15s; }
+    .sidebar-right.open .nav-list li:nth-child(4) { transition-delay: 0.20s; }
+    .sidebar-right.open .nav-list li:nth-child(5) { transition-delay: 0.25s; }
+    .sidebar-right.open .nav-list li:nth-child(6) { transition-delay: 0.30s; }
+    .sidebar-right.open .nav-list li:nth-child(7) { transition-delay: 0.35s; }
+    .sidebar-right.open .nav-list li:nth-child(8) { transition-delay: 0.40s; }
+
+    .nav-list li a {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0.8rem 1.2rem;
+      border-radius: 14px;
+      color: rgba(255, 240, 230, 0.7);
+      font-weight: 400;
+      font-size: 1.05rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+    }
+    .nav-list li a i {
+      width: 28px;
+      font-size: 1.3rem;
+      color: rgba(228, 199, 122, 0.6);
+      transition: 0.2s;
+    }
+    .nav-list li a:hover {
+      background: rgba(201, 162, 39, 0.08);
+      color: var(--warm-white);
+      border-left-color: var(--gold);
+    }
+    .nav-list li a:hover i {
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(201, 162, 39, 0.3);
+    }
+    .nav-list li.active a {
+      background: rgba(201, 162, 39, 0.08);
+      border-left-color: var(--gold);
+      color: var(--warm-white);
+    }
+    .nav-list li.active a i {
+      color: var(--gold);
+    }
+
+    /* sidebar footer (inside) */
+    .sidebar-footer {
+      border-top: 1px solid rgba(201, 162, 39, 0.12);
+      padding-top: 1.2rem;
+      margin-top: 0.5rem;
+      flex-shrink: 0;
+    }
+    .sidebar-footer p {
+      color: rgba(255, 240, 230, 0.5);
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      margin-bottom: 0.6rem;
+    }
+    .sidebar-footer .social-icons {
+      display: flex;
+      gap: 1.2rem;
+    }
+    .sidebar-footer .social-icons a {
+      color: rgba(255, 240, 230, 0.4);
+      font-size: 1.4rem;
+      transition: 0.2s;
+    }
+    .sidebar-footer .social-icons a:hover {
+      color: var(--gold);
+      transform: scale(1.1);
+      text-shadow: 0 0 16px rgba(201, 162, 39, 0.3);
+    }
+
+    /* ----- MAIN CONTENT (no left margin) ----- */
+    .main-content {
+      width: 100%;
+    }
+
+    /* ----- HERO (full viewport) ----- */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      background: url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1600&q=80') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(42, 7, 16, 0.45);
+      background: linear-gradient(145deg, rgba(42,7,16,0.6) 0%, rgba(74,14,26,0.3) 100%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 950px;
+      padding: 2rem;
+      text-align: center;
+      color: var(--warm-white);
+      animation: heroFade 1.8s ease;
+    }
+    @keyframes heroFade {
+      0% { opacity: 0; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(201, 162, 39, 0.2);
+      backdrop-filter: blur(4px);
+      padding: 0.3rem 1.8rem;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      letter-spacing: 3px;
+      color: var(--soft-gold);
+      border: 1px solid rgba(201, 162, 39, 0.3);
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 {
+      font-size: 4.2rem;
+      font-weight: 300;
+      line-height: 1.1;
+      margin-bottom: 0.8rem;
+      text-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .hero h1 strong { font-weight: 600; color: var(--soft-gold); }
+    .hero p {
+      font-size: 1.25rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+      font-weight: 300;
+      text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-bottom: 2.5rem;
+    }
+    .btn-gold {
+      background: transparent;
+      border: 1.5px solid var(--gold);
+      color: var(--warm-white);
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-decoration: none;
+      transition: 0.3s;
+      backdrop-filter: blur(2px);
+      box-shadow: 0 0 15px rgba(201, 162, 39, 0.1);
+    }
+    .btn-gold:hover {
+      background: var(--gold);
+      color: var(--dark-maroon);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
+      transform: scale(1.03);
+    }
+    .btn-gold-filled {
+      background: var(--gold);
+      border: 1.5px solid var(--gold);
+      color: var(--dark-maroon);
+      padding: 0.9rem 2.5rem;
+      border-radius: 60px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .btn-gold-filled:hover {
+      background: transparent;
+      color: var(--warm-white);
+      box-shadow: 0 0 30px rgba(201, 162, 39, 0.2);
+      transform: scale(1.03);
+    }
+
+    /* booking panel */
+    .booking-panel {
+      position: absolute;
+      bottom: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      background: rgba(42, 7, 16, 0.65);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(201, 162, 39, 0.2);
+      border-radius: 60px;
+      padding: 1.2rem 2.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1.2rem 1.8rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      width: auto;
+      max-width: 90%;
+    }
+    .booking-panel .field {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: var(--warm-white);
+    }
+    .booking-panel .field i { color: var(--soft-gold); font-size: 1rem; }
+    .booking-panel .field input,
+    .booking-panel .field select {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(201, 162, 39, 0.2);
+      border-radius: 40px;
+      padding: 0.5rem 1rem;
+      color: var(--warm-white);
+      font-size: 0.9rem;
+      outline: none;
+      transition: 0.2s;
+      min-width: 110px;
+    }
+    .booking-panel .field input:focus,
+    .booking-panel .field select:focus {
+      border-color: var(--gold);
+      background: rgba(255,255,255,0.15);
+    }
+    .booking-panel .field input::placeholder { color: rgba(255,240,230,0.6); }
+    .booking-panel .field select option { background: #2A0710; color: var(--warm-white); }
+    .btn-check {
+      background: var(--gold);
+      border: none;
+      border-radius: 60px;
+      padding: 0.65rem 2rem;
+      font-weight: 600;
+      color: var(--dark-maroon);
+      cursor: pointer;
+      transition: 0.2s;
+      letter-spacing: 0.8px;
+    }
+    .btn-check:hover {
+      background: var(--soft-gold);
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(201, 162, 39, 0.3);
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      color: rgba(255, 240, 230, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      animation: bounceDown 2.4s infinite;
+    }
+    .scroll-indicator i { font-size: 1.4rem; }
+    @keyframes bounceDown {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* sections (unchanged) */
+    .section { padding: 5rem 6%; max-width: 1400px; margin: 0 auto; }
+    .section-title { font-size: 2.6rem; font-weight: 300; color: var(--dark-maroon); margin-bottom: 0.5rem; }
+    .section-title span { color: var(--gold); }
+    .gold-line { width: 80px; height: 2px; background: var(--gold); margin: 0.5rem 0 2rem; }
+    .welcome-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+    .welcome-image {
+      background: url('https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80') center/cover;
+      min-height: 380px;
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+      transition: 0.6s;
+    }
+    .welcome-text p { font-size: 1.15rem; line-height: 1.7; color: #2f2a2a; }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      text-align: center;
+      margin: 2rem 0;
+    }
+    .stat-item {
+      background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(2px);
+      padding: 2rem 1rem;
+      border-radius: 32px;
+      border: 1px solid rgba(201, 162, 39, 0.15);
+    }
+    .stat-number { font-size: 3rem; font-weight: 300; color: var(--maroon); }
+    .stat-label { color: #3d2e2e; letter-spacing: 1px; }
+    .room-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem;
+      margin-top: 2rem;
+    }
+    .room-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+      transition: 0.4s;
+      border: 1px solid rgba(201, 162, 39, 0.05);
+    }
+    .room-card:hover { transform: translateY(-8px); box-shadow: 0 25px 40px rgba(74, 14, 26, 0.08); }
+    .room-card img { width: 100%; height: 220px; object-fit: cover; }
+    .room-info { padding: 1.5rem; }
+    .room-info h3 { color: var(--maroon); font-weight: 400; font-size: 1.5rem; }
+    .room-info .price { color: var(--gold); font-weight: 600; font-size: 1.2rem; }
+    .room-info .meta { display: flex; gap: 1rem; color: #5a4a4a; font-size: 0.9rem; margin: 0.6rem 0; }
+    .room-actions { display: flex; gap: 0.8rem; margin-top: 1rem; }
+    .room-actions a { text-decoration: none; padding: 0.4rem 1.4rem; border-radius: 40px; font-size: 0.85rem; border: 1px solid var(--gold); transition: 0.2s; }
+    .btn-detail { background: transparent; color: var(--maroon); }
+    .btn-detail:hover { background: var(--gold); color: white; }
+    .btn-book { background: var(--gold); color: var(--dark-maroon); font-weight: 600; }
+    .btn-book:hover { background: var(--soft-gold); }
+    .preview-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0;
+    }
+    .preview-card {
+      background: white;
+      padding: 2rem 1rem;
+      border-radius: 24px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.02);
+      border: 1px solid rgba(201, 162, 39, 0.06);
+    }
+    .preview-card i { font-size: 2.8rem; color: var(--gold); margin-bottom: 0.8rem; }
+    .cta-big {
+      background: var(--maroon);
+      padding: 4rem 2rem;
+      border-radius: 40px;
+      text-align: center;
+      color: var(--warm-white);
+      margin: 3rem 0;
+    }
+    .cta-big h2 { font-size: 3rem; font-weight: 300; }
+    .cta-big h2 span { color: var(--soft-gold); }
+
+    /* footer (unchanged) */
+    .footer {
+      background: var(--dark-maroon);
+      color: rgba(255, 240, 230, 0.7);
+      padding: 4rem 6% 2rem;
+      margin-top: 4rem;
+      border-top: 1px solid rgba(201, 162, 39, 0.2);
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+    }
+    .footer h4 { color: var(--soft-gold); font-weight: 400; letter-spacing: 1px; margin-bottom: 1.2rem; }
+    .footer a { color: rgba(255, 240, 230, 0.6); text-decoration: none; display: block; margin: 0.4rem 0; transition: 0.2s; }
+    .footer a:hover { color: var(--gold); }
+    .footer-social i { font-size: 1.6rem; margin-right: 0.8rem; transition: 0.2s; }
+    .footer-social i:hover { color: var(--gold); transform: scale(1.1); }
+    .footer-bottom {
+      border-top: 1px solid rgba(201, 162, 39, 0.1);
+      padding-top: 2rem;
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    /* responsive */
+    @media (max-width: 1024px) {
+      .hero h1 { font-size: 3.2rem; }
+    }
+    @media (max-width: 768px) {
+      .sidebar-right { width: 88vw; }
+      .hero h1 { font-size: 2.6rem; }
+      .booking-panel { border-radius: 30px; padding: 1rem; gap: 0.8rem; width: 95%; bottom: 5%; }
+      .booking-panel .field input { min-width: 80px; }
+      .welcome-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .room-cards { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .hamburger-btn { top: 1.2rem; right: 1.2rem; padding: 0.6rem 0.9rem; font-size: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 2rem; }
+      .section-title { font-size: 2rem; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+    .text-center { text-align: center; }
+    .mt-2 { margin-top: 2rem; }
+    .mb-2 { margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <!-- HAMBURGER BUTTON (top-right) -->
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <!-- OVERLAY (blur + dark) -->
+  <div class="menu-overlay" id="menuOverlay"></div>
+
+  <!-- RIGHT SIDEBAR -->
+  <aside class="sidebar-right" id="rightSidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <i class="fas fa-crown"></i>
+        <h2>THE <span>AURELIA</span> GRAND</h2>
+      </div>
+      <button class="sidebar-close" id="sidebarCloseBtn" aria-label="Close menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <ul class="nav-list">
+      <li class="active"><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+      <li><a href="about.html"><i class="fas fa-hotel"></i> About</a></li>
+      <li><a href="rooms.html"><i class="fas fa-bed"></i> Rooms & Suites</a></li>
+      <li><a href="dining.html"><i class="fas fa-utensils"></i> Dining</a></li>
+      <li><a href="amenities.html"><i class="fas fa-spa"></i> Amenities</a></li>
+      <li><a href="gallery.html"><i class="fas fa-images"></i> Gallery</a></li>
+      <li><a href="booking.html"><i class="fas fa-calendar-check"></i> Book Your Stay</a></li>
+      <li><a href="booking.html#contact"><i class="fas fa-phone-alt"></i> Contact</a></li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <p><i class="fas fa-quote-left" style="color:var(--gold);"></i> Where Luxury Becomes a Memory.</p>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-tiktok"></i></a>
+        <a href="#"><i class="fab fa-pinterest-p"></i></a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT (unchanged) -->
+  <main class="main-content">
+    <!-- HERO -->
+    <section class="hero" id="hero">
+      <div class="hero-content">
+        <div class="hero-badge"><i class="fas fa-star" style="color:var(--gold);"></i> WELCOME TO THE AURELIA GRAND</div>
+        <h1><strong>"Where Luxury</strong> Becomes a Memory."</h1>
+        <p>An intimate boutique retreat where timeless elegance, refined comfort, and unforgettable moments come together.</p>
+        <div class="hero-buttons">
+          <a href="rooms.html" class="btn-gold-filled"><i class="fas fa-door-open"></i> EXPLORE ROOMS</a>
+          <a href="booking.html" class="btn-gold"><i class="fas fa-calendar-plus"></i> BOOK YOUR STAY</a>
+        </div>
+      </div>
+      <!-- booking panel -->
+      <div class="booking-panel">
+        <div class="field"><i class="fas fa-calendar-alt"></i> <input type="date" id="checkin" value="2026-09-01"></div>
+        <div class="field"><i class="fas fa-calendar-alt"></i> <input type="date" id="checkout" value="2026-09-04"></div>
+        <div class="field"><i class="fas fa-user"></i> <select id="guests"><option>1 Adult</option><option selected>2 Adults</option><option>2 Adults + 1 Child</option></select></div>
+        <div class="field"><i class="fas fa-bed"></i> <select id="roomType"><option>Deluxe Suite</option><option>Executive Suite</option><option>Royal Suite</option></select></div>
+        <button class="btn-check" id="checkAvailabilityBtn"><i class="fas fa-search"></i> CHECK AVAILABILITY</button>
+      </div>
+      <div class="scroll-indicator" id="scrollIndicator">
+        <span>DISCOVER THE EXPERIENCE</span>
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </section>
+
+    <!-- WELCOME -->
+    <section class="section" id="welcome">
+      <div class="welcome-grid">
+        <div class="welcome-image"></div>
+        <div class="welcome-text">
+          <h2 class="section-title">"A Stay <span>Beyond Ordinary.</span>"</h2>
+          <div class="gold-line"></div>
+          <p>At The Aurelia Grand, every detail has been thoughtfully designed to transform an ordinary stay into an extraordinary experience.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="section">
+      <div class="stats-grid">
+        <div class="stat-item"><div class="stat-number" data-count="25">25+</div><div class="stat-label">Luxury Rooms</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="12">12</div><div class="stat-label">Signature Experiences</div></div>
+        <div class="stat-item"><div class="stat-number" data-count="4.9">4.9/5</div><div class="stat-label">Guest Rating</div></div>
+        <div class="stat-item"><div class="stat-number">24/7</div><div class="stat-label">Concierge</div></div>
+      </div>
+    </section>
+
+    <!-- ROOMS -->
+    <section class="section">
+      <h2 class="section-title">"Stay <span>Your Way.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="room-cards">
+        <div class="room-card"><img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=600&q=80" alt="Deluxe Suite"><div class="room-info"><h3>Deluxe Maroon Suite</h3><div class="meta"><i class="fas fa-user"></i> 2 guests <i class="fas fa-bed"></i> King</div><div class="price">$420 <span style="font-weight:300;font-size:0.9rem;">/ night</span></div><div class="room-actions"><a href="room-details.html" class="btn-detail">View Details</a><a href="booking.html" class="btn-book">Book Now</a></div></div></div>
+        <div class="room-card"><img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&q=80" alt="Executive Suite"><div class="room-info"><h3>Aurelia Executive Suite</h3><div class="meta"><i class="fas fa-user"></i> 2 guests <i class="fas fa-bed"></i> King + Lounge</div><div class="price">$590 <span style="font-weight:300;font-size:0.9rem;">/ night</span></div><div class="room-actions"><a href="room-details.html" class="btn-detail">View Details</a><a href="booking.html" class="btn-book">Book Now</a></div></div></div>
+        <div class="room-card"><img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&q=80" alt="Royal Suite"><div class="room-info"><h3>Grand Royal Suite</h3><div class="meta"><i class="fas fa-user"></i> 4 guests <i class="fas fa-bed"></i> 2 Kings</div><div class="price">$890 <span style="font-weight:300;font-size:0.9rem;">/ night</span></div><div class="room-actions"><a href="room-details.html" class="btn-detail">View Details</a><a href="booking.html" class="btn-book">Book Now</a></div></div></div>
+      </div>
+    </section>
+
+    <!-- DINING -->
+    <section class="section">
+      <h2 class="section-title">"Taste the <span>Extraordinary.</span>"</h2>
+      <div class="gold-line"></div>
+      <div style="background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1200&q=80') center/cover; min-height:300px; border-radius:30px; display:flex; align-items:center; justify-content:center; margin:2rem 0; position:relative;">
+        <div style="background:rgba(42,7,16,0.3); backdrop-filter:blur(3px); padding:2rem 4rem; border-radius:60px; border:1px solid rgba(201,162,39,0.2);"><a href="dining.html" class="btn-gold-filled" style="font-size:1.2rem;">EXPLORE DINING</a></div>
+      </div>
+    </section>
+
+    <!-- AMENITIES -->
+    <section class="section">
+      <h2 class="section-title">"Indulge in <span>Every Moment.</span>"</h2>
+      <div class="gold-line"></div>
+      <div class="preview-grid">
+        <div class="preview-card"><i class="fas fa-spa"></i><h4>Spa</h4><p>Holistic treatments</p></div>
+        <div class="preview-card"><i class="fas fa-swimmer"></i><h4>Infinity Pool</h4><p>Panoramic views</p></div>
+        <div class="preview-card"><i class="fas fa-dumbbell"></i><h4>Fitness</h4><p>State-of-the-art</p></div>
+        <div class="preview-card"><i class="fas fa-concierge-bell"></i><h4>Concierge</h4><p>24/7 luxury service</p></div>
+      </div>
+      <div class="text-center"><a href="amenities.html" class="btn-gold" style="border-color:var(--gold);color:var(--maroon);">DISCOVER AMENITIES</a></div>
+    </section>
+
+    <!-- GALLERY -->
+    <section class="section">
+      <h2 class="section-title">"Inside <span>The Aurelia Grand.</span>"</h2>
+      <div class="gold-line"></div>
+      <div style="display:grid; grid-template-columns: repeat(3,1fr); gap:1rem; margin:2rem 0;">
+        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=80" style="width:100%; height:180px; object-fit:cover; border-radius:20px;" alt="interior">
+        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=80" style="width:100%; height:180px; object-fit:cover; border-radius:20px;" alt="lobby">
+        <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400&q=80" style="width:100%; height:180px; object-fit:cover; border-radius:20px;" alt="dining">
+        <img src="https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=400&q=80" style="width:100%; height:180px; object-fit:cover; border-radius:20px;" alt="suite">
+        <img src="https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&q=80" style="width:100%; height:180px; object-fit:cover; border-radius:20px;" alt="bedroom">
+        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&q=80" style="width:100%; height:180px; object-fit:cover; border-radius:20px;" alt="restaurant">
+      </div>
+      <div class="text-center"><a href="gallery.html" class="btn-gold" style="border-color:var(--gold);color:var(--maroon);">VIEW FULL GALLERY</a></div>
+    </section>
+
+    <!-- CTA -->
+    <section class="section">
+      <div class="cta-big">
+        <h2>"Make Your Next Stay <span>Extraordinary.</span>"</h2>
+        <p style="font-size:1.2rem; margin:1rem 0;">Reserve your room and discover the Aurelia Grand experience.</p>
+        <a href="booking.html" class="btn-gold-filled" style="background:var(--warm-white); color:var(--dark-maroon); border-color:var(--warm-white);">BOOK YOUR STAY</a>
+      </div>
+    </section>
+
+    <!-- FOOTER (unchanged) -->
+    <footer class="footer">
+      <div class="footer-grid">
+        <div><h4>THE AURELIA GRAND</h4><p style="font-size:0.9rem;">Luxury boutique hotel where elegance meets memory.</p></div>
+        <div><h4>Explore</h4><a href="index.html">Home</a><a href="about.html">About</a><a href="rooms.html">Rooms</a><a href="dining.html">Dining</a><a href="amenities.html">Amenities</a><a href="gallery.html">Gallery</a><a href="booking.html">Booking</a></div>
+        <div><h4>Contact</h4><a href="#"><i class="fas fa-map-pin"></i> 888 Luxury Ave, NYC</a><a href="#"><i class="fas fa-phone-alt"></i> +1 (800) 555‑AURELIA</a><a href="#"><i class="fas fa-envelope"></i> stay@aureliagrand.com</a></div>
+        <div><h4>Follow</h4><div class="footer-social"><a href="#"><i class="fab fa-instagram"></i></a><a href="#"><i class="fab fa-facebook-f"></i></a><a href="#"><i class="fab fa-tiktok"></i></a><a href="#"><i class="fab fa-pinterest-p"></i></a></div></div>
+      </div>
+      <div class="footer-bottom">© 2026 The Aurelia Grand. All rights reserved. <i class="fas fa-crown" style="color:var(--gold);"></i></div>
+    </footer>
+  </main>
+
+  <script>
+    (function() {
+      const hamburger = document.getElementById('hamburgerBtn');
+      const sidebar = document.getElementById('rightSidebar');
+      const overlay = document.getElementById('menuOverlay');
+      const closeBtn = document.getElementById('sidebarCloseBtn');
+      const icon = hamburger.querySelector('i');
+
+      function openMenu() {
+        sidebar.classList.add('open');
+        overlay.classList.add('active');
+        hamburger.classList.add('open');
+        icon.className = 'fas fa-times';
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('active');
+        hamburger.classList.remove('open');
+        icon.className = 'fas fa-bars';
+        document.body.style.overflow = '';
+      }
+
+      hamburger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sidebar.classList.contains('open')) closeMenu();
+        else openMenu();
+      });
+
+      closeBtn.addEventListener('click', closeMenu);
+      overlay.addEventListener('click', closeMenu);
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) closeMenu();
+      });
+
+      // booking panel: check availability
+      document.getElementById('checkAvailabilityBtn').addEventListener('click', function() {
+        const checkin = document.getElementById('checkin').value;
+        const checkout = document.getElementById('checkout').value;
+        const guests = document.getElementById('guests').value;
+        const room = document.getElementById('roomType').value;
+        const params = new URLSearchParams({ checkin, checkout, guests, room });
+        window.location.href = 'booking.html?' + params.toString();
+      });
+
+      // scroll indicator
+      document.getElementById('scrollIndicator').addEventListener('click', () => {
+        document.getElementById('welcome').scrollIntoView({ behavior: 'smooth' });
+      });
+
+      // stat observer (minimal)
+      const statNumbers = document.querySelectorAll('.stat-number[data-count]');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // just keep static values
+          }
+        });
+      }, { threshold: 0.5 });
+      statNumbers.forEach(s => observer.observe(s));
+    })();
+  </script>
+</body>
+</html>
